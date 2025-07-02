@@ -2,24 +2,24 @@ package usecase
 
 import (
 	"time"
-	"workmate/domain"
 
+	"github.com/gaz358/myprog/workmate/domen"
 	"github.com/google/uuid"
 )
 
 type TaskUseCase struct {
-	repo domain.TaskRepository
+	repo domen.TaskRepository
 }
 
-func NewTaskUseCase(repo domain.TaskRepository) *TaskUseCase {
+func NewTaskUseCase(repo domen.TaskRepository) *TaskUseCase {
 	return &TaskUseCase{repo: repo}
 }
 
-func (uc *TaskUseCase) CreateTask() (*domain.Task, error) {
-	task := &domain.Task{
+func (uc *TaskUseCase) CreateTask() (*domen.Task, error) {
+	task := &domen.Task{
 		ID:        uuid.NewString(),
 		CreatedAt: time.Now(),
-		Status:    domain.StatusPending,
+		Status:    domen.StatusPending,
 	}
 	if err := uc.repo.Create(task); err != nil {
 		return nil, err
@@ -28,17 +28,17 @@ func (uc *TaskUseCase) CreateTask() (*domain.Task, error) {
 	return task, nil
 }
 
-func (uc *TaskUseCase) run(task *domain.Task) {
-	task.Status = domain.StatusRunning
+func (uc *TaskUseCase) run(task *domen.Task) {
+	task.Status = domen.StatusRunning
 	task.StartedAt = time.Now()
 	time.Sleep(3 * time.Minute)
-	task.Status = domain.StatusCompleted
+	task.Status = domen.StatusCompleted
 	task.EndedAt = time.Now()
 	task.Result = "OK"
 	_ = uc.repo.Update(task)
 }
 
-func (uc *TaskUseCase) GetTask(id string) (*domain.Task, error) {
+func (uc *TaskUseCase) GetTask(id string) (*domen.Task, error) {
 	return uc.repo.Get(id)
 }
 

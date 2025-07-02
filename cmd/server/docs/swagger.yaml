@@ -1,4 +1,38 @@
 basePath: /
+definitions:
+  domen.Status:
+    enum:
+    - PENDING
+    - RUNNING
+    - COMPLETED
+    - FAILED
+    type: string
+    x-enum-varnames:
+    - StatusPending
+    - StatusRunning
+    - StatusCompleted
+    - StatusFailed
+  domen.Task:
+    properties:
+      created_at:
+        type: string
+      ended_at:
+        type: string
+      id:
+        type: string
+      result:
+        type: string
+      started_at:
+        type: string
+      status:
+        $ref: '#/definitions/domen.Status'
+    type: object
+  phttp.ErrorResponse:
+    properties:
+      message:
+        example: something went wrong
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -12,7 +46,15 @@ paths:
         ID
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: Задача успешно создана
+          schema:
+            $ref: '#/definitions/domen.Task'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/phttp.ErrorResponse'
       summary: Создать новую задачу
       tags:
       - tasks
@@ -28,6 +70,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/phttp.ErrorResponse'
       summary: Удалить задачу по ID
       tags:
       - tasks
@@ -41,7 +87,19 @@ paths:
         type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: Задача найдена
+          schema:
+            $ref: '#/definitions/domen.Task'
+        "404":
+          description: Задача не найдена
+          schema:
+            $ref: '#/definitions/phttp.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/phttp.ErrorResponse'
       summary: Получить задачу по ID
       tags:
       - tasks

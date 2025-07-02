@@ -4,11 +4,17 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"workmate/pkg/logger"
-	"workmate/usecase"
-
+	"github.com/gaz358/myprog/workmate/domen"
+	"github.com/gaz358/myprog/workmate/pkg/logger"
+	"github.com/gaz358/myprog/workmate/usecase"
 	"github.com/go-chi/chi/v5"
 )
+
+type ErrorResponse struct {
+	Message string `json:"message" example:"something went wrong"`
+}
+
+var _ = domen.Task{}
 
 type Handler struct {
 	uc  *usecase.TaskUseCase
@@ -35,6 +41,8 @@ func (h *Handler) Routes() http.Handler {
 // @Description  Инициализирует задачу со статусом Pending и возвращает её с сгенерированным ID
 // @Tags         tasks
 // @Produce      json
+// @Success      200  {object}  domen.Task         "Задача успешно создана"
+// @Failure      500  {object}  ErrorResponse  "Внутренняя ошибка сервера"
 // @Router       /tasks [post]
 func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 	h.log.Infow("create task request", "method", r.Method, "path", r.URL.Path)
@@ -54,7 +62,10 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 // @Description  Возвращает задачу по её идентификатору
 // @Tags         tasks
 // @Produce      json
-// @Param        id   path      string       true  "ID задачи"
+// @Param        id   path      string            true  "ID задачи"
+// @Success      200  {object}  domen.Task        "Задача найдена"
+// @Failure      404  {object}  phttp.ErrorResponse  "Задача не найдена"
+// @Failure      500  {object}  phttp.ErrorResponse  "Внутренняя ошибка сервера"
 // @Router       /tasks/{id} [get]
 func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
@@ -63,7 +74,8 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 	task, err := h.uc.GetTask(id)
 	if err != nil {
 		h.log.Warnw("task not found", "id", id)
-		http.Error(w, "task not found", http.StatusNotFound)
+		writeJSON(w, ErrorResponse{Message: "task not found"})
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
@@ -74,8 +86,9 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 // @Summary      Удалить задачу по ID
 // @Description  Удаляет задачу из системы по её идентификатору
 // @Tags         tasks
-// @Param        id   path      string       true  "ID задачи"
+// @Param        id   path      string            true  "ID задачи"
 // @Success      204  "No Content"
+// @Failure      500  {object}  phttp.ErrorResponse  "Внутренняя ошибка сервера"
 // @Router       /tasks/{id} [delete]
 func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
@@ -83,7 +96,8 @@ func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
 
 	if err := h.uc.DeleteTask(id); err != nil {
 		h.log.Errorw("failed to delete task", "id", id, "error", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeJSON(w, ErrorResponse{Message: err.Error()})
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 

@@ -12,46 +12,37 @@ import (
 	"os/signal"
 	"time"
 
-	"workmate/internal/delivery/phttp"
-	"workmate/pkg/logger"
-	"workmate/repository/memory"
-	"workmate/usecase"
+	"github.com/gaz358/myprog/workmate/internal/delivery/phttp"
+	"github.com/gaz358/myprog/workmate/pkg/logger"
+	"github.com/gaz358/myprog/workmate/repository/memory"
+	"github.com/gaz358/myprog/workmate/usecase"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 
-	_ "workmate/cmd/server/docs"
-	//_ "workmate/docs"
+	_ "github.com/gaz358/myprog/workmate/cmd/server/docs"
 
 	"github.com/go-chi/chi/v5"
 )
 
 func main() {
-	// 1) Логгер
 	logger.SetLevel(logger.InfoLevel)
 	logg := logger.Global().Named("main")
 
-	// 2) Репозиторий, юзкейс, handler
 	repo := memory.NewInMemoryRepo()
 	uc := usecase.NewTaskUseCase(repo)
 	handler := phttp.NewHandler(uc)
 
-	// 3) Создаём корневой chi.Router и монтируем в него:
 	r := chi.NewRouter()
 
-	// 3.1) Ваши маршруты API
 	r.Mount("/tasks", handler.Routes())
 
-	// 3.2) Swagger UI по пути /swagger/*
-	//     httpSwagger.WrapHandler сам отдаёт статические файлы и индекс
 	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
-	// 4) Конфигурируем и запускаем HTTP-сервер
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: r,
 	}
 
-	// graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 

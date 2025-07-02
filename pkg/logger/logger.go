@@ -110,6 +110,12 @@ func SetLogger(l TypeOfLogger) {
 	global = l
 }
 
+// Below listed all logging functions
+// Suffix meaning:
+// * No suffix, e.g. Debug()   - log concatenated args
+// * f,         e.g. Debugf()  - log using format string
+// * KV,        e.g. DebugKV() - log key-values, odd args are keys, even – values
+
 // Debug ...
 func Debug(ctx context.Context, args ...interface{}) {
 	FromContext(ctx).Debug(args...)

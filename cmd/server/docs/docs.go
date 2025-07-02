@@ -25,7 +25,20 @@ const docTemplate = `{
                     "tasks"
                 ],
                 "summary": "Создать новую задачу",
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "Задача успешно создана",
+                        "schema": {
+                            "$ref": "#/definitions/domen.Task"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/phttp.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/tasks/{id}": {
@@ -47,7 +60,26 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "Задача найдена",
+                        "schema": {
+                            "$ref": "#/definitions/domen.Task"
+                        }
+                    },
+                    "404": {
+                        "description": "Задача не найдена",
+                        "schema": {
+                            "$ref": "#/definitions/phttp.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/phttp.ErrorResponse"
+                        }
+                    }
+                }
             },
             "delete": {
                 "description": "Удаляет задачу из системы по её идентификатору",
@@ -67,7 +99,62 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/phttp.ErrorResponse"
+                        }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "domen.Status": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "RUNNING",
+                "COMPLETED",
+                "FAILED"
+            ],
+            "x-enum-varnames": [
+                "StatusPending",
+                "StatusRunning",
+                "StatusCompleted",
+                "StatusFailed"
+            ]
+        },
+        "domen.Task": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "ended_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "string"
+                },
+                "started_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/domen.Status"
+                }
+            }
+        },
+        "phttp.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "something went wrong"
                 }
             }
         }

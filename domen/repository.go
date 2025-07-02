@@ -1,4 +1,4 @@
-package domain
+package domen
 
 type TaskRepository interface {
 	Create(*Task) error

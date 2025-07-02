@@ -1,4 +1,4 @@
-package domain
+package domen
 
 import "time"
 
@@ -11,6 +11,7 @@ const (
 	StatusFailed    Status = "FAILED"
 )
 
+// swagger:model Task
 type Task struct {
 	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
