@@ -12,14 +12,15 @@ import (
 	"os/signal"
 	"time"
 
-	_http "workmate/internal/delivery/phttp"
+	"workmate/internal/delivery/phttp"
 	"workmate/pkg/logger"
 	"workmate/repository/memory"
 	"workmate/usecase"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 
-	_ "workmate/cmd/server/docs" // сгенерированные swagger-файлы
+	_ "workmate/cmd/server/docs"
+	//_ "workmate/docs"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -32,7 +33,7 @@ func main() {
 	// 2) Репозиторий, юзкейс, handler
 	repo := memory.NewInMemoryRepo()
 	uc := usecase.NewTaskUseCase(repo)
-	handler := _http.NewHandler(uc)
+	handler := phttp.NewHandler(uc)
 
 	// 3) Создаём корневой chi.Router и монтируем в него:
 	r := chi.NewRouter()

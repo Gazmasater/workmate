@@ -5,5 +5,44 @@ info:
   description: Сервис управления задачами
   title: Tasks API
   version: "1.0"
-paths: {}
+paths:
+  /tasks:
+    post:
+      description: Инициализирует задачу со статусом Pending и возвращает её с сгенерированным
+        ID
+      produces:
+      - application/json
+      responses: {}
+      summary: Создать новую задачу
+      tags:
+      - tasks
+  /tasks/{id}:
+    delete:
+      description: Удаляет задачу из системы по её идентификатору
+      parameters:
+      - description: ID задачи
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Удалить задачу по ID
+      tags:
+      - tasks
+    get:
+      description: Возвращает задачу по её идентификатору
+      parameters:
+      - description: ID задачи
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Получить задачу по ID
+      tags:
+      - tasks
 swagger: "2.0"
