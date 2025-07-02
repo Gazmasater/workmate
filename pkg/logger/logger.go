@@ -9,6 +9,13 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	DebugLevel = zapcore.DebugLevel
+	InfoLevel  = zapcore.InfoLevel
+	WarnLevel  = zapcore.WarnLevel
+	ErrorLevel = zapcore.ErrorLevel
+)
+
 type (
 	//LogLevel os alias tp zapcore.Level
 	LogLevel = zapcore.Level
@@ -102,12 +109,6 @@ func Global() TypeOfLogger {
 func SetLogger(l TypeOfLogger) {
 	global = l
 }
-
-// Below listed all logging functions
-// Suffix meaning:
-// * No suffix, e.g. Debug()   - log concatenated args
-// * f,         e.g. Debugf()  - log using format string
-// * KV,        e.g. DebugKV() - log key-values, odd args are keys, even – values
 
 // Debug ...
 func Debug(ctx context.Context, args ...interface{}) {
