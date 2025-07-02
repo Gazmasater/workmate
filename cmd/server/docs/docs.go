@@ -23,7 +23,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Workmate API",
+	Title:            "Tasks API",
 	Description:      "Сервис управления задачами",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

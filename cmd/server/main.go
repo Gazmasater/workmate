@@ -1,4 +1,4 @@
-// @title           Workmate API
+// @title           Tasks API
 // @version         1.0
 // @description     Сервис управления задачами
 // @host            localhost:8080
@@ -12,7 +12,7 @@ import (
 	"os/signal"
 	"time"
 
-	"workmate/internal/delivery/_http"
+	_http "workmate/internal/delivery/phttp"
 	"workmate/pkg/logger"
 	"workmate/repository/memory"
 	"workmate/usecase"

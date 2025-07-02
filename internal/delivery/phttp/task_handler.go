@@ -1,4 +1,4 @@
-package _http
+package phttp
 
 import (
 	"encoding/json"
@@ -31,14 +31,12 @@ func (h *Handler) Routes() http.Handler {
 	return r
 }
 
-// @Summary      Создать задачу
-// @Description  Принимает JSON с новой задачей и возвращает её с ID
+// @Summary      Создать новую задачу
+// @Description  Инициализирует задачу со статусом Pending и возвращает её с сгенерированным ID
 // @Tags         tasks
-// @Accept       json
 // @Produce      json
-// @Param        task  body      usecase.TaskInput  true  "Данные задачи"
-// @Success      200   {object}  usecase.Task
-// @Router      /tasks [post]
+
+// @Router       /tasks [post]
 func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 	h.log.Infow("create task request", "method", r.Method, "path", r.URL.Path)
 
