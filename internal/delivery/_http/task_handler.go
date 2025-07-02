@@ -25,7 +25,7 @@ func NewHandler(uc *usecase.TaskUseCase) *Handler {
 
 func (h *Handler) Routes() http.Handler {
 	r := chi.NewRouter()
-	r.Post("/tasks", h.create)
+	r.Post("/", h.create)
 	r.Get("/{id}", h.get)
 	r.Delete("/{id}", h.delete)
 	return r
