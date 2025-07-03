@@ -132,6 +132,10 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "duration": {
+                    "description": "Duration of the task execution\nexample: 3m0s",
+                    "type": "string"
+                },
                 "ended_at": {
                     "type": "string"
                 },

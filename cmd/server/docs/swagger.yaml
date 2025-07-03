@@ -16,6 +16,11 @@ definitions:
     properties:
       created_at:
         type: string
+      duration:
+        description: |-
+          Duration of the task execution
+          example: 3m0s
+        type: string
       ended_at:
         type: string
       id:
