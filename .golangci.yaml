@@ -73,7 +73,7 @@ linters:
     - dogsled
     - dupl
     - errcheck
-    - exportloopref
+    #- exportloopref
     #- funlen
     #- gochecknoinits
     - goconst

@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gaz358/myprog/workmate/domen"
 	"github.com/joho/godotenv"
 )
 
@@ -24,8 +25,8 @@ func Load() *Config {
 	cfg := &Config{
 		Port:            getEnv("PORT", "8080"),
 		LogLevel:        getEnv("LOG_LEVEL", "info"),
-		TaskDuration:    getEnvAsDuration("TASK_DURATION", 60*time.Second),
-		ShutdownTimeout: getEnvAsDuration("SHUTDOWN_TIMEOUT", 5*time.Second),
+		TaskDuration:    getEnvAsDuration("TASK_DURATION", domen.DefaultTaskDuration),
+		ShutdownTimeout: getEnvAsDuration("SHUTDOWN_TIMEOUT", domen.DefaultShutdownTimeout),
 	}
 
 	log.Printf("[config] PORT=%s", cfg.Port)

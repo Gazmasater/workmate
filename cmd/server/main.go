@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/gaz358/myprog/workmate/config"
 	"github.com/gaz358/myprog/workmate/internal/delivery/phttp"
@@ -39,8 +40,9 @@ func main() {
 	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	srv := &http.Server{
-		Addr:    ":" + cfg.Port,
-		Handler: r,
+		Addr:              ":" + cfg.Port,
+		Handler:           r,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
 	quit := make(chan os.Signal, 1)
