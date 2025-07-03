@@ -6,8 +6,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gaz358/myprog/workmate/domen"
 	"github.com/joho/godotenv"
+)
+
+const (
+	defaultTaskDuration    = 60 * time.Second
+	defaultShutdownTimeout = 5 * time.Second
 )
 
 type Config struct {
@@ -25,8 +29,8 @@ func Load() *Config {
 	cfg := &Config{
 		Port:            getEnv("PORT", "8080"),
 		LogLevel:        getEnv("LOG_LEVEL", "info"),
-		TaskDuration:    getEnvAsDuration("TASK_DURATION", domen.DefaultTaskDuration),
-		ShutdownTimeout: getEnvAsDuration("SHUTDOWN_TIMEOUT", domen.DefaultShutdownTimeout),
+		TaskDuration:    getEnvAsDuration("TASK_DURATION", defaultTaskDuration),
+		ShutdownTimeout: getEnvAsDuration("SHUTDOWN_TIMEOUT", defaultShutdownTimeout),
 	}
 
 	log.Printf("[config] PORT=%s", cfg.Port)
