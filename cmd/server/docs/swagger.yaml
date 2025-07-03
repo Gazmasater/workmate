@@ -32,6 +32,15 @@ definitions:
       status:
         $ref: '#/definitions/domen.Status'
     type: object
+  domen.TaskListItem:
+    properties:
+      duration:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+    type: object
   phttp.ErrorResponse:
     properties:
       message:
@@ -106,6 +115,24 @@ paths:
           schema:
             $ref: '#/definitions/phttp.ErrorResponse'
       summary: Получить задачу по ID
+      tags:
+      - tasks
+  /tasks/all:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domen.TaskListItem'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/phttp.ErrorResponse'
+      summary: Получить список всех задач
       tags:
       - tasks
 swagger: "2.0"

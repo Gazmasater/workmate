@@ -8,11 +8,15 @@ import (
 )
 
 type TaskUseCase struct {
-	repo domen.TaskRepository
+	repo     domen.TaskRepository
+	duration time.Duration
 }
 
-func NewTaskUseCase(repo domen.TaskRepository) *TaskUseCase {
-	return &TaskUseCase{repo: repo}
+func NewTaskUseCase(repo domen.TaskRepository, duration time.Duration) *TaskUseCase {
+	return &TaskUseCase{
+		repo:     repo,
+		duration: duration,
+	}
 }
 
 func (uc *TaskUseCase) CreateTask() (*domen.Task, error) {
@@ -31,10 +35,14 @@ func (uc *TaskUseCase) CreateTask() (*domen.Task, error) {
 func (uc *TaskUseCase) run(task *domen.Task) {
 	task.Status = domen.StatusRunning
 	task.StartedAt = time.Now()
-	time.Sleep(3 * time.Minute)
+
+	time.Sleep(uc.duration)
+
 	task.Status = domen.StatusCompleted
 	task.EndedAt = time.Now()
+	task.Duration = task.EndedAt.Sub(task.StartedAt).String()
 	task.Result = "OK"
+
 	_ = uc.repo.Update(task)
 }
 
@@ -44,4 +52,8 @@ func (uc *TaskUseCase) GetTask(id string) (*domen.Task, error) {
 
 func (uc *TaskUseCase) DeleteTask(id string) error {
 	return uc.repo.Delete(id)
+}
+
+func (uc *TaskUseCase) ListTasks() ([]*domen.Task, error) {
+	return uc.repo.List()
 }

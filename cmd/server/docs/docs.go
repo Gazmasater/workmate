@@ -41,6 +41,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/tasks/all": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Получить список всех задач",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domen.TaskListItem"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/phttp.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/tasks/{id}": {
             "get": {
                 "description": "Возвращает задачу по её идентификатору",
@@ -150,6 +178,20 @@ const docTemplate = `{
                 },
                 "status": {
                     "$ref": "#/definitions/domen.Status"
+                }
+            }
+        },
+        "domen.TaskListItem": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },

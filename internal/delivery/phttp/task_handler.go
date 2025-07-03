@@ -2,6 +2,7 @@ package phttp
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/gaz358/myprog/workmate/domen"
@@ -33,6 +34,8 @@ func (h *Handler) Routes() http.Handler {
 	r := chi.NewRouter()
 	r.Post("/", h.create)
 	r.Get("/{id}", h.get)
+	r.Get("/all", h.list)
+
 	r.Delete("/{id}", h.delete)
 	return r
 }
@@ -73,9 +76,16 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 
 	task, err := h.uc.GetTask(id)
 	if err != nil {
-		h.log.Warnw("task not found", "id", id)
-		writeJSON(w, ErrorResponse{Message: "task not found"})
-		w.WriteHeader(http.StatusNotFound)
+		if errors.Is(err, domen.ErrNotFound) {
+			h.log.Warnw("task not found", "id", id)
+			w.WriteHeader(http.StatusNotFound)
+			writeJSON(w, ErrorResponse{Message: "task not found"})
+			return
+		}
+
+		h.log.Errorw("failed to get task", "id", id, "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		writeJSON(w, ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -94,10 +104,18 @@ func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	h.log.Infow("delete task request", "method", r.Method, "path", r.URL.Path, "id", id)
 
-	if err := h.uc.DeleteTask(id); err != nil {
+	err := h.uc.DeleteTask(id)
+	if err != nil {
+		if errors.Is(err, domen.ErrNotFound) {
+			h.log.Warnw("task not found", "id", id)
+			w.WriteHeader(http.StatusNotFound)
+			writeJSON(w, ErrorResponse{Message: "task not found"})
+			return
+		}
+
 		h.log.Errorw("failed to delete task", "id", id, "error", err)
-		writeJSON(w, ErrorResponse{Message: err.Error()})
 		w.WriteHeader(http.StatusInternalServerError)
+		writeJSON(w, ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -108,4 +126,34 @@ func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
 func writeJSON(w http.ResponseWriter, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(v)
+}
+
+// @Summary      Получить список всех задач
+// @Tags         tasks
+// @Produce      json
+// @Success      200  {array}  domen.TaskListItem
+// @Failure      500  {object}  ErrorResponse
+// @Router       /tasks/all [get]
+func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
+	tasks, err := h.uc.ListTasks()
+	if err != nil {
+		h.log.Errorw("failed to list tasks", "error", err)
+		writeJSON(w, ErrorResponse{Message: err.Error()})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var result []map[string]interface{}
+	for _, t := range tasks {
+		item := map[string]interface{}{
+			"id":     t.ID,
+			"status": t.Status,
+		}
+		if t.Status == domen.StatusCompleted {
+			item["duration"] = t.EndedAt.Sub(t.StartedAt).String()
+		}
+		result = append(result, item)
+	}
+
+	writeJSON(w, result)
 }
