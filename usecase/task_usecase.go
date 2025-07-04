@@ -36,7 +36,7 @@ func (uc *TaskUseCase) run(task *domen.Task) {
 	task.Status = domen.StatusRunning
 	task.StartedAt = time.Now()
 
-	//time.Sleep(uc.duration)
+	time.Sleep(uc.duration)
 
 	task.Status = domen.StatusCompleted
 	task.EndedAt = time.Now()
