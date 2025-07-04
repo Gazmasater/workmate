@@ -5,5 +5,5 @@ type TaskRepository interface {
 	Update(*Task) error
 	Delete(id string) error
 	Get(id string) (*Task, error)
-	List() ([]*Task, error) // 👈 добавить
+	List() ([]*Task, error)
 }

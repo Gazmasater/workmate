@@ -3,6 +3,7 @@ package phttp
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/gaz358/myprog/workmate/domen"
@@ -187,8 +188,8 @@ func (h *Handler) cancel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.log.Infow("task cancelled", "id", id)
-	writeJSON(w, map[string]string{"status": "cancelled"})
+	h.log.Infow("task canceled", "id", id)
+	writeJSON(w, map[string]string{"status": "canceled"})
 }
 
 // @Summary      Healthcheck
@@ -199,5 +200,7 @@ func (h *Handler) cancel(w http.ResponseWriter, r *http.Request) {
 // @Router       /health [get]
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("ok"))
+	if _, err := w.Write([]byte("ok")); err != nil {
+		log.Printf("write response error: %v", err)
+	}
 }
