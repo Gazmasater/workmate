@@ -49,7 +49,8 @@ func (r *InMemoryRepo) Get(id string) (*domen.Task, error) {
 	if !ok {
 		return nil, domen.ErrNotFound
 	}
-	return t, nil
+	tCopy := *t // поверхностная копия!
+	return &tCopy, nil
 }
 
 func (r *InMemoryRepo) List() ([]*domen.Task, error) {
@@ -58,7 +59,8 @@ func (r *InMemoryRepo) List() ([]*domen.Task, error) {
 
 	tasks := make([]*domen.Task, 0, len(r.tasks))
 	for _, t := range r.tasks {
-		tasks = append(tasks, t)
+		tCopy := *t // поверхностная копия!
+		tasks = append(tasks, &tCopy)
 	}
 	return tasks, nil
 }
