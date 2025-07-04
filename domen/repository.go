@@ -1,9 +1,9 @@
 package domen
 
 type TaskRepository interface {
-	Create(*Task) error
-	Update(*Task) error
-	Delete(id string) error
+	Create(task *Task) error
+	Update(task *Task) error
 	Get(id string) (*Task, error)
-	List() ([]*Task, error) // 👈 добавить
+	List() ([]*Task, error)
+	Delete(id string) error
 }
