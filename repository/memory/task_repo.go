@@ -22,7 +22,6 @@ func (r *InMemoryRepo) Create(task *domen.Task) error {
 	if _, exists := r.tasks[task.ID]; exists {
 		return errors.New("task already exists")
 	}
-	// Копируем задачу
 	tCopy := *task
 	r.tasks[task.ID] = &tCopy
 	return nil
@@ -32,7 +31,7 @@ func (r *InMemoryRepo) Update(task *domen.Task) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if _, exists := r.tasks[task.ID]; !exists {
-		return domen.ErrNotFound // ИСПРАВЛЕНО
+		return domen.ErrNotFound
 	}
 	tCopy := *task
 	r.tasks[task.ID] = &tCopy
@@ -43,7 +42,7 @@ func (r *InMemoryRepo) Delete(id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if _, ok := r.tasks[id]; !ok {
-		return domen.ErrNotFound // <--- и тут тоже
+		return domen.ErrNotFound
 	}
 	delete(r.tasks, id)
 	return nil
@@ -54,7 +53,7 @@ func (r *InMemoryRepo) Get(id string) (*domen.Task, error) {
 	defer r.mu.RUnlock()
 	t, ok := r.tasks[id]
 	if !ok {
-		return nil, domen.ErrNotFound // <--- используем общую ошибку!
+		return nil, domen.ErrNotFound
 	}
 	tCopy := *t
 	return &tCopy, nil
