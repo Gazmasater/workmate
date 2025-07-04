@@ -38,6 +38,7 @@ func (h *Handler) Routes() http.Handler {
 
 	r.Delete("/{id}", h.delete)
 	r.Put("/{id}/cancel", h.cancel)
+	r.Get("/health", h.Health) // health на корне API
 
 	return r
 }
@@ -188,4 +189,15 @@ func (h *Handler) cancel(w http.ResponseWriter, r *http.Request) {
 
 	h.log.Infow("task cancelled", "id", id)
 	writeJSON(w, map[string]string{"status": "cancelled"})
+}
+
+// @Summary      Healthcheck
+// @Description  Проверка доступности сервиса
+// @Tags         health
+// @Produce      plain
+// @Success      200 {string} string "ok"
+// @Router       /health [get]
+func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("ok"))
 }

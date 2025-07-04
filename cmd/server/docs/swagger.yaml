@@ -56,6 +56,19 @@ info:
   title: Tasks API
   version: "1.0"
 paths:
+  /health:
+    get:
+      description: Проверка доступности сервиса
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: Healthcheck
+      tags:
+      - health
   /tasks:
     post:
       description: Инициализирует задачу со статусом Pending и возвращает её с сгенерированным
