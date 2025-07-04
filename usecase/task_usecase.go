@@ -28,26 +28,34 @@ func (uc *TaskUseCase) CreateTask() (*domen.Task, error) {
 	if err := uc.repo.Create(task); err != nil {
 		return nil, err
 	}
-	go uc.run(task)
-	return task, nil
+	go uc.run(task.ID)
+	// Возвращаем только копию задачи из репозитория, чтобы не светить указатель, который мутирует run
+	return uc.repo.Get(task.ID)
 }
 
-func (uc *TaskUseCase) run(task *domen.Task) {
+func (uc *TaskUseCase) run(id string) {
+	// Получаем копию задачи из репозитория
+	task, err := uc.repo.Get(id)
+	if err != nil {
+		return
+	}
+	// Меняем статус и время старта
 	task.Status = domen.StatusRunning
 	task.StartedAt = time.Now()
+	uc.repo.Update(task)
 
 	time.Sleep(uc.duration)
 
+	// Обновляем задачу после выполнения
 	task.Status = domen.StatusCompleted
 	task.EndedAt = time.Now()
 	task.Duration = task.EndedAt.Sub(task.StartedAt).String()
 	task.Result = "OK"
-
-	_ = uc.repo.Update(task)
+	uc.repo.Update(task)
 }
 
 func (uc *TaskUseCase) GetTask(id string) (*domen.Task, error) {
-	return uc.repo.Get(id)
+	return uc.repo.Get(id) // repo.Get должен возвращать копию!
 }
 
 func (uc *TaskUseCase) DeleteTask(id string) error {
@@ -55,7 +63,7 @@ func (uc *TaskUseCase) DeleteTask(id string) error {
 }
 
 func (uc *TaskUseCase) ListTasks() ([]*domen.Task, error) {
-	return uc.repo.List()
+	return uc.repo.List() // repo.List должен возвращать только копии!
 }
 
 func (uc *TaskUseCase) CancelTask(id string) error {
