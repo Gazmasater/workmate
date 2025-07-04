@@ -43,7 +43,7 @@ func (r *InMemoryRepo) Delete(id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if _, ok := r.tasks[id]; !ok {
-		return domen.ErrNotFound
+		return domen.ErrNotFound // <--- и тут тоже
 	}
 	delete(r.tasks, id)
 	return nil
@@ -52,11 +52,11 @@ func (r *InMemoryRepo) Delete(id string) error {
 func (r *InMemoryRepo) Get(id string) (*domen.Task, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	task, exists := r.tasks[id]
-	if !exists {
-		return nil, errors.New("task not found")
+	t, ok := r.tasks[id]
+	if !ok {
+		return nil, domen.ErrNotFound // <--- используем общую ошибку!
 	}
-	tCopy := *task
+	tCopy := *t
 	return &tCopy, nil
 }
 
