@@ -32,7 +32,7 @@ func (r *InMemoryRepo) Update(task *domen.Task) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if _, exists := r.tasks[task.ID]; !exists {
-		return errors.New("task not found")
+		return errors.New("not found")
 	}
 	tCopy := *task
 	r.tasks[task.ID] = &tCopy
