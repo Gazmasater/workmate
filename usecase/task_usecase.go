@@ -57,3 +57,16 @@ func (uc *TaskUseCase) DeleteTask(id string) error {
 func (uc *TaskUseCase) ListTasks() ([]*domen.Task, error) {
 	return uc.repo.List()
 }
+
+func (uc *TaskUseCase) CancelTask(id string) error {
+	task, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+	if task.Status == domen.StatusCompleted || task.Status == domen.StatusFailed || task.Status == domen.StatusCancelled {
+		return nil
+	}
+	task.Status = domen.StatusCancelled
+	task.Result = "Cancelled"
+	return uc.repo.Update(task)
+}

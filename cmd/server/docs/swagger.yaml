@@ -6,12 +6,14 @@ definitions:
     - RUNNING
     - COMPLETED
     - FAILED
+    - CANCELLED
     type: string
     x-enum-varnames:
     - StatusPending
     - StatusRunning
     - StatusCompleted
     - StatusFailed
+    - StatusCancelled
   domen.Task:
     properties:
       created_at:
@@ -115,6 +117,33 @@ paths:
           schema:
             $ref: '#/definitions/phttp.ErrorResponse'
       summary: Получить задачу по ID
+      tags:
+      - tasks
+  /tasks/{id}/cancel:
+    put:
+      description: Прерывает выполнение задачи, если она ещё не завершена
+      parameters:
+      - description: ID задачи
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Задача отменена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Задача не найдена
+          schema:
+            $ref: '#/definitions/phttp.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка
+          schema:
+            $ref: '#/definitions/phttp.ErrorResponse'
+      summary: Отменить задачу
       tags:
       - tasks
   /tasks/all:

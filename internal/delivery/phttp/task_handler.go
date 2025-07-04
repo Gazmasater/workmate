@@ -37,6 +37,8 @@ func (h *Handler) Routes() http.Handler {
 	r.Get("/all", h.list)
 
 	r.Delete("/{id}", h.delete)
+	r.Put("/{id}/cancel", h.cancel)
+
 	return r
 }
 
@@ -156,4 +158,34 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, result)
+}
+
+// @Summary      Отменить задачу
+// @Description  Прерывает выполнение задачи, если она ещё не завершена
+// @Tags         tasks
+// @Param        id   path      string  true  "ID задачи"
+// @Success      200  {object}  map[string]string  "Задача отменена"
+// @Failure      404  {object}  ErrorResponse       "Задача не найдена"
+// @Failure      500  {object}  ErrorResponse       "Внутренняя ошибка"
+// @Router       /tasks/{id}/cancel [put]
+func (h *Handler) cancel(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	h.log.Infow("cancel task request", "method", r.Method, "path", r.URL.Path, "id", id)
+
+	err := h.uc.CancelTask(id)
+	if err != nil {
+		if errors.Is(err, domen.ErrNotFound) {
+			h.log.Warnw("task not found", "id", id)
+			w.WriteHeader(http.StatusNotFound)
+			writeJSON(w, ErrorResponse{Message: "task not found"})
+			return
+		}
+		h.log.Errorw("failed to cancel task", "id", id, "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		writeJSON(w, ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	h.log.Infow("task cancelled", "id", id)
+	writeJSON(w, map[string]string{"status": "cancelled"})
 }

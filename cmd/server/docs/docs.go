@@ -136,6 +136,47 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/tasks/{id}/cancel": {
+            "put": {
+                "description": "Прерывает выполнение задачи, если она ещё не завершена",
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Отменить задачу",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID задачи",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Задача отменена",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Задача не найдена",
+                        "schema": {
+                            "$ref": "#/definitions/phttp.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка",
+                        "schema": {
+                            "$ref": "#/definitions/phttp.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -145,13 +186,15 @@ const docTemplate = `{
                 "PENDING",
                 "RUNNING",
                 "COMPLETED",
-                "FAILED"
+                "FAILED",
+                "CANCELLED"
             ],
             "x-enum-varnames": [
                 "StatusPending",
                 "StatusRunning",
                 "StatusCompleted",
-                "StatusFailed"
+                "StatusFailed",
+                "StatusCancelled"
             ]
         },
         "domen.Task": {

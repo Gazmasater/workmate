@@ -9,6 +9,7 @@ const (
 	StatusRunning   Status = "RUNNING"
 	StatusCompleted Status = "COMPLETED"
 	StatusFailed    Status = "FAILED"
+	StatusCancelled Status = "CANCELLED"
 )
 
 // swagger:model Task
