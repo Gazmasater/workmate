@@ -58,7 +58,6 @@ func TestInMemoryRepo_Concurrency(t *testing.T) {
 	}
 	wg.Wait()
 
-	// Параллельное обновление задач на FAILED
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func(id int) {
