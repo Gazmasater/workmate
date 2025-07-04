@@ -4,7 +4,7 @@ on:
   push:
     branches: [ iter1 ]
   pull_request:
-    branches: [ iter1 ]
+    branches: [  ]
 
 jobs:
   test:

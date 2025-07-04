@@ -187,8 +187,8 @@ func (h *Handler) cancel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.log.Infow("task cancelled", "id", id)
-	writeJSON(w, map[string]string{"status": "cancelled"})
+	h.log.Infow("task canceled", "id", id)
+	writeJSON(w, map[string]string{"status": "canceled"})
 }
 
 // @Summary      Healthcheck

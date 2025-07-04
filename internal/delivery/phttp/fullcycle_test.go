@@ -49,7 +49,7 @@ func TestTaskHandler_FullCycleWithCancel(t *testing.T) {
 	var cancelResult map[string]string
 	err = json.Unmarshal(body, &cancelResult)
 	assert.NoError(t, err)
-	assert.Equal(t, "cancelled", cancelResult["status"])
+	assert.Equal(t, "canceled", cancelResult["status"])
 
 	// Get task by ID
 	getResp, err := http.Get(server.URL + "/" + created.ID)
