@@ -33,7 +33,7 @@ func TestInMemoryRepo_CreateAndGet_ExactMatch(t *testing.T) {
 	assert.Equal(t, expectedTask.EndedAt, got.EndedAt)
 	assert.Equal(t, expectedTask.Duration, got.Duration)
 	assert.Equal(t, expectedTask.Status, got.Status)
-	assert.Equal(t, exfoundpectedTask.Result, got.Result)
+	assert.Equal(t, expectedTask.Result, got.Result)
 
 	// Проверка получения несуществующей задачи
 	nonExistentID := "task-nonexistent"
