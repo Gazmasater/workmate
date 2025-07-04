@@ -62,7 +62,8 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.log.Infow("task created", "id", task.ID)
-	writeJSON(w, task)
+	taskCopy := *task
+	writeJSON(w, taskCopy)
 }
 
 // @Summary      Получить задачу по ID
@@ -94,7 +95,8 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.log.Infow("task retrieved", "id", task.ID)
-	writeJSON(w, task)
+	taskCopy := *task
+	writeJSON(w, taskCopy)
 }
 
 // @Summary      Удалить задачу по ID
