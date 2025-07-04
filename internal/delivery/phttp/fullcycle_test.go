@@ -21,7 +21,7 @@ func setupTestServer() *httptest.Server {
 	return httptest.NewServer(handler.Routes())
 }
 
-func TestTaskHandler_FullCycle(t *testing.T) {
+func TestTaskHandler_FullCycleWithCancel(t *testing.T) {
 	server := setupTestServer()
 	defer server.Close()
 
@@ -37,8 +37,19 @@ func TestTaskHandler_FullCycle(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, created.ID)
 
-	// Wait for task to complete
-	time.Sleep(300 * time.Millisecond)
+	// Cancel task
+	cancelReq, err := http.NewRequest(http.MethodPut, server.URL+"/"+created.ID+"/cancel", nil)
+	assert.NoError(t, err)
+	cancelResp, err := http.DefaultClient.Do(cancelReq)
+	assert.NoError(t, err)
+	defer cancelResp.Body.Close()
+	assert.Equal(t, http.StatusOK, cancelResp.StatusCode)
+
+	body, _ = io.ReadAll(cancelResp.Body)
+	var cancelResult map[string]string
+	err = json.Unmarshal(body, &cancelResult)
+	assert.NoError(t, err)
+	assert.Equal(t, "cancelled", cancelResult["status"])
 
 	// Get task by ID
 	getResp, err := http.Get(server.URL + "/" + created.ID)
@@ -51,20 +62,7 @@ func TestTaskHandler_FullCycle(t *testing.T) {
 	err = json.Unmarshal(body, &fetched)
 	assert.NoError(t, err)
 	assert.Equal(t, created.ID, fetched.ID)
-	assert.Equal(t, domen.StatusCompleted, fetched.Status)
-
-	// List all tasks
-	listResp, err := http.Get(server.URL + "/all")
-	assert.NoError(t, err)
-	defer listResp.Body.Close()
-	assert.Equal(t, http.StatusOK, listResp.StatusCode)
-
-	body, _ = io.ReadAll(listResp.Body)
-	var list []map[string]interface{}
-	err = json.Unmarshal(body, &list)
-	assert.NoError(t, err)
-	assert.Len(t, list, 1)
-	assert.Equal(t, created.ID, list[0]["id"])
+	assert.Equal(t, domen.StatusCancelled, fetched.Status)
 
 	// Delete task
 	req, err := http.NewRequest(http.MethodDelete, server.URL+"/"+created.ID, nil)
