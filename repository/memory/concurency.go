@@ -13,7 +13,6 @@ func TestInMemoryRepo_Concurrency(t *testing.T) {
 	const n = 100
 	var wg sync.WaitGroup
 
-	// Параллельное создание задач
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func(id int) {
