@@ -207,7 +207,7 @@ const docTemplate = `{
                 "RUNNING",
                 "COMPLETED",
                 "FAILED",
-                "CANCELLED"
+                "CANCELED"
             ],
             "x-enum-varnames": [
                 "StatusPending",

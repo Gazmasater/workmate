@@ -6,7 +6,7 @@ definitions:
     - RUNNING
     - COMPLETED
     - FAILED
-    - CANCELLED
+    - CANCELED
     type: string
     x-enum-varnames:
     - StatusPending

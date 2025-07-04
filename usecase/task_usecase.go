@@ -67,6 +67,6 @@ func (uc *TaskUseCase) CancelTask(id string) error {
 		return nil
 	}
 	task.Status = domen.StatusCancelled
-	task.Result = "Cancelled"
+	task.Result = "Canceled"
 	return uc.repo.Update(task)
 }
