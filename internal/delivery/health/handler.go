@@ -8,7 +8,7 @@ import (
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	log := logger.Global().Named("health")
-	log.Debugw("health check request", "method", r.Method, "path", r.URL.Path, "remote", r.RemoteAddr)
+	log.Info("health check request", "method", r.Method, "path", r.URL.Path, "remote", r.RemoteAddr)
 
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write([]byte("ok")); err != nil {

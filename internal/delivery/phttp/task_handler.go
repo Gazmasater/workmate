@@ -225,11 +225,9 @@ func (h *Handler) filter(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	status := r.URL.Query().Get("status")
 
-	// Дефолтные значения
 	limit := 10
 	offset := 0
 
-	// Разбор параметров с обработкой ошибок
 	if l := r.URL.Query().Get("limit"); l != "" {
 		if v, err := strconv.Atoi(l); err == nil && v > 0 {
 			limit = v
@@ -271,6 +269,5 @@ func (h *Handler) filter(w http.ResponseWriter, r *http.Request) {
 	}
 	paged := filtered[offset:end]
 
-	// Можно преобразовать к TaskListItem, если требуется
 	writeJSON(w, paged)
 }
