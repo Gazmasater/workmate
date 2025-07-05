@@ -6,6 +6,9 @@
 package main
 
 import (
+	"log"
+	_ "net/http/pprof"
+
 	"context"
 	"net/http"
 	"os"
@@ -26,6 +29,11 @@ import (
 )
 
 func main() {
+	go func() {
+		log.Println("pprof listening on :6060")
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
 	cfg := config.Load()
 
 	logger.SetLevel(parseLogLevel(cfg.LogLevel))

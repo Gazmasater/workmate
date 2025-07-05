@@ -4,20 +4,20 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gaz358/myprog/workmate/domen"
+	"github.com/gaz358/myprog/workmate/domain"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestInMemoryRepo_CreateAndGet_ExactMatch(t *testing.T) {
 	repo := NewInMemoryRepo()
 
-	expectedTask := &domen.Task{
+	expectedTask := &domain.Task{
 		ID:        "task-abc123",
 		CreatedAt: time.Now().Truncate(time.Second),
 		StartedAt: time.Now().Add(1 * time.Second).Truncate(time.Second),
 		EndedAt:   time.Now().Add(5 * time.Second).Truncate(time.Second),
 		Duration:  "4s",
-		Status:    domen.StatusCompleted,
+		Status:    domain.StatusCompleted,
 		Result:    "OK",
 	}
 
@@ -39,5 +39,5 @@ func TestInMemoryRepo_CreateAndGet_ExactMatch(t *testing.T) {
 	nonExistentID := "task-nonexistent"
 	got, err = repo.Get(nonExistentID)
 	assert.Nil(t, got, "ожидается nil при получении несуществующей задачи")
-	assert.ErrorIs(t, err, domen.ErrNotFound, "ожидалась ошибка ErrNotFound")
+	assert.ErrorIs(t, err, domain.ErrNotFound, "ожидалась ошибка ErrNotFound")
 }

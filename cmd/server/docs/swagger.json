@@ -43,7 +43,7 @@
                     "200": {
                         "description": "Задача успешно создана",
                         "schema": {
-                            "$ref": "#/definitions/domen.Task"
+                            "$ref": "#/definitions/domain.Task"
                         }
                     },
                     "500": {
@@ -70,7 +70,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domen.TaskListItem"
+                                "$ref": "#/definitions/domain.TaskListItem"
                             }
                         }
                     },
@@ -106,7 +106,7 @@
                     "200": {
                         "description": "Задача найдена",
                         "schema": {
-                            "$ref": "#/definitions/domen.Task"
+                            "$ref": "#/definitions/domain.Task"
                         }
                     },
                     "404": {
@@ -194,7 +194,7 @@
         }
     },
     "definitions": {
-        "domen.Status": {
+        "domain.Status": {
             "type": "string",
             "enum": [
                 "PENDING",
@@ -211,7 +211,7 @@
                 "StatusCancelled"
             ]
         },
-        "domen.Task": {
+        "domain.Task": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -234,11 +234,11 @@
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/domen.Status"
+                    "$ref": "#/definitions/domain.Status"
                 }
             }
         },
-        "domen.TaskListItem": {
+        "domain.TaskListItem": {
             "type": "object",
             "properties": {
                 "duration": {

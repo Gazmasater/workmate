@@ -49,7 +49,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Задача успешно создана",
                         "schema": {
-                            "$ref": "#/definitions/domen.Task"
+                            "$ref": "#/definitions/domain.Task"
                         }
                     },
                     "500": {
@@ -76,7 +76,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domen.TaskListItem"
+                                "$ref": "#/definitions/domain.TaskListItem"
                             }
                         }
                     },
@@ -112,7 +112,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Задача найдена",
                         "schema": {
-                            "$ref": "#/definitions/domen.Task"
+                            "$ref": "#/definitions/domain.Task"
                         }
                     },
                     "404": {
@@ -200,7 +200,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domen.Status": {
+        "domain.Status": {
             "type": "string",
             "enum": [
                 "PENDING",
@@ -217,7 +217,7 @@ const docTemplate = `{
                 "StatusCancelled"
             ]
         },
-        "domen.Task": {
+        "domain.Task": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -240,11 +240,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/domen.Status"
+                    "$ref": "#/definitions/domain.Status"
                 }
             }
         },
-        "domen.TaskListItem": {
+        "domain.TaskListItem": {
             "type": "object",
             "properties": {
                 "duration": {

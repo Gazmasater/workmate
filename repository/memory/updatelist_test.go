@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gaz358/myprog/workmate/domen"
+	"github.com/gaz358/myprog/workmate/domain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,32 +12,32 @@ func TestInMemoryRepo_Update(t *testing.T) {
 	repo := NewInMemoryRepo()
 
 	// Создание и добавление задачи
-	task := &domen.Task{
+	task := &domain.Task{
 		ID:        "task-1",
 		CreatedAt: time.Now(),
-		Status:    domen.StatusPending,
+		Status:    domain.StatusPending,
 	}
 	err := repo.Create(task)
 	assert.NoError(t, err, "ошибка при создании задачи")
 
 	// Обновление задачи
-	task.Status = domen.StatusCompleted
+	task.Status = domain.StatusCompleted
 	task.Result = "done"
 	err = repo.Update(task)
 	assert.NoError(t, err, "ошибка при обновлении задачи")
 
 	updated, err := repo.Get(task.ID)
 	assert.NoError(t, err)
-	assert.Equal(t, domen.StatusCompleted, updated.Status)
+	assert.Equal(t, domain.StatusCompleted, updated.Status)
 	assert.Equal(t, "done", updated.Result)
 
 	// Попытка обновить несуществующую задачу
-	nonexistent := &domen.Task{
+	nonexistent := &domain.Task{
 		ID:     "nonexistent",
-		Status: domen.StatusFailed,
+		Status: domain.StatusFailed,
 	}
 	err = repo.Update(nonexistent)
-	assert.ErrorIs(t, err, domen.ErrNotFound)
+	assert.ErrorIs(t, err, domain.ErrNotFound)
 }
 
 func TestInMemoryRepo_List(t *testing.T) {
@@ -49,8 +49,8 @@ func TestInMemoryRepo_List(t *testing.T) {
 	assert.Empty(t, tasks, "список должен быть пуст при отсутствии задач")
 
 	// Добавим несколько задач
-	task1 := &domen.Task{ID: "id1", CreatedAt: time.Now(), Status: domen.StatusPending}
-	task2 := &domen.Task{ID: "id2", CreatedAt: time.Now(), Status: domen.StatusCompleted}
+	task1 := &domain.Task{ID: "id1", CreatedAt: time.Now(), Status: domain.StatusPending}
+	task2 := &domain.Task{ID: "id2", CreatedAt: time.Now(), Status: domain.StatusCompleted}
 
 	_ = repo.Create(task1)
 	_ = repo.Create(task2)

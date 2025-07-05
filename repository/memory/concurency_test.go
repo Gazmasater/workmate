@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/gaz358/myprog/workmate/domen"
+	"github.com/gaz358/myprog/workmate/domain"
 )
 
 func TestInMemoryRepo_Concurrency(t *testing.T) {
@@ -18,9 +18,9 @@ func TestInMemoryRepo_Concurrency(t *testing.T) {
 		go func(id int) {
 			defer wg.Done()
 			tid := fmt.Sprintf("task-%d", id)
-			task := &domen.Task{
+			task := &domain.Task{
 				ID:     tid,
-				Status: domen.StatusPending,
+				Status: domain.StatusPending,
 			}
 			if err := repo.Create(task); err != nil {
 				t.Errorf("create err: %v", err)
@@ -44,9 +44,9 @@ func TestInMemoryRepo_Concurrency(t *testing.T) {
 		go func(id int) {
 			defer wg.Done()
 			tid := fmt.Sprintf("task-%d", id)
-			task := &domen.Task{
+			task := &domain.Task{
 				ID:     tid,
-				Status: domen.StatusCompleted,
+				Status: domain.StatusCompleted,
 			}
 			if err := repo.Update(task); err != nil {
 				t.Errorf("update err: %v", err)

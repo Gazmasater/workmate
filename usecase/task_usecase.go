@@ -3,30 +3,27 @@ package usecase
 import (
 	"time"
 
-	"github.com/gaz358/myprog/workmate/domen"
+	"github.com/gaz358/myprog/workmate/domain"
 	"github.com/google/uuid"
 )
 
 type TaskUseCase struct {
-	repo     domen.TaskRepository
+	repo     domain.TaskRepository
 	duration time.Duration
 }
 
-// NewTaskUseCase создает новый экземпляр TaskUseCase.
-func NewTaskUseCase(repo domen.TaskRepository, duration time.Duration) *TaskUseCase {
+func NewTaskUseCase(repo domain.TaskRepository, duration time.Duration) *TaskUseCase {
 	return &TaskUseCase{
 		repo:     repo,
 		duration: duration,
 	}
 }
 
-// CreateTask создает новую задачу, сохраняет её в репозитории и запускает выполнение в отдельной горутине.
-// Возвращает копию задачи из репозитория.
-func (uc *TaskUseCase) CreateTask() (*domen.Task, error) {
-	task := &domen.Task{
+func (uc *TaskUseCase) CreateTask() (*domain.Task, error) {
+	task := &domain.Task{
 		ID:        uuid.NewString(),
 		CreatedAt: time.Now(),
-		Status:    domen.StatusPending,
+		Status:    domain.StatusPending,
 	}
 	err := uc.repo.Create(task)
 	if err != nil {
@@ -42,38 +39,32 @@ func (uc *TaskUseCase) CreateTask() (*domen.Task, error) {
 	return createdTask, nil
 }
 
-// run выполняет задачу с заданным идентификатором.
-// Все изменения статуса задачи сохраняются в репозитории с проверкой ошибок.
 func (uc *TaskUseCase) run(id string) {
 	task, err := uc.repo.Get(id)
 	if err != nil {
-		// Не удалось получить задачу — выходим.
 		return
 	}
 
-	task.Status = domen.StatusRunning
+	task.Status = domain.StatusRunning
 	task.StartedAt = time.Now()
 	err = uc.repo.Update(task)
 	if err != nil {
-		// Не удалось обновить статус задачи — выходим.
 		return
 	}
 
 	time.Sleep(uc.duration)
 
-	task.Status = domen.StatusCompleted
+	task.Status = domain.StatusCompleted
 	task.EndedAt = time.Now()
 	task.Duration = task.EndedAt.Sub(task.StartedAt).String()
 	task.Result = "OK"
 	err = uc.repo.Update(task)
 	if err != nil {
-		// Не удалось обновить задачу после выполнения — выходим.
 		return
 	}
 }
 
-// GetTask возвращает копию задачи по идентификатору.
-func (uc *TaskUseCase) GetTask(id string) (*domen.Task, error) {
+func (uc *TaskUseCase) GetTask(id string) (*domain.Task, error) {
 	task, err := uc.repo.Get(id)
 	if err != nil {
 		return nil, err
@@ -81,7 +72,6 @@ func (uc *TaskUseCase) GetTask(id string) (*domen.Task, error) {
 	return task, nil
 }
 
-// DeleteTask удаляет задачу по идентификатору.
 func (uc *TaskUseCase) DeleteTask(id string) error {
 	err := uc.repo.Delete(id)
 	if err != nil {
@@ -90,8 +80,7 @@ func (uc *TaskUseCase) DeleteTask(id string) error {
 	return nil
 }
 
-// ListTasks возвращает список копий всех задач.
-func (uc *TaskUseCase) ListTasks() ([]*domen.Task, error) {
+func (uc *TaskUseCase) ListTasks() ([]*domain.Task, error) {
 	tasks, err := uc.repo.List()
 	if err != nil {
 		return nil, err
@@ -99,18 +88,17 @@ func (uc *TaskUseCase) ListTasks() ([]*domen.Task, error) {
 	return tasks, nil
 }
 
-// CancelTask отменяет задачу по идентификатору, если она не завершена.
 func (uc *TaskUseCase) CancelTask(id string) error {
 	task, err := uc.repo.Get(id)
 	if err != nil {
 		return err
 	}
-	if task.Status == domen.StatusCompleted ||
-		task.Status == domen.StatusFailed ||
-		task.Status == domen.StatusCancelled {
+	if task.Status == domain.StatusCompleted ||
+		task.Status == domain.StatusFailed ||
+		task.Status == domain.StatusCancelled {
 		return nil
 	}
-	task.Status = domen.StatusCancelled
+	task.Status = domain.StatusCancelled
 	task.Result = "Canceled"
 	err = uc.repo.Update(task)
 	if err != nil {

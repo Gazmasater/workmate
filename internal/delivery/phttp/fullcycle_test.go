@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gaz358/myprog/workmate/domen"
+	"github.com/gaz358/myprog/workmate/domain"
 	"github.com/gaz358/myprog/workmate/repository/memory"
 	"github.com/gaz358/myprog/workmate/usecase"
 	"github.com/stretchr/testify/assert"
@@ -32,7 +32,7 @@ func TestTaskHandler_FullCycleWithCancel(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	body, _ := io.ReadAll(resp.Body)
-	var created domen.Task
+	var created domain.Task
 	err = json.Unmarshal(body, &created)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, created.ID)
@@ -58,11 +58,11 @@ func TestTaskHandler_FullCycleWithCancel(t *testing.T) {
 	assert.Equal(t, http.StatusOK, getResp.StatusCode)
 
 	body, _ = io.ReadAll(getResp.Body)
-	var fetched domen.Task
+	var fetched domain.Task
 	err = json.Unmarshal(body, &fetched)
 	assert.NoError(t, err)
 	assert.Equal(t, created.ID, fetched.ID)
-	assert.Equal(t, domen.StatusCancelled, fetched.Status)
+	assert.Equal(t, domain.StatusCancelled, fetched.Status)
 
 	// Delete task
 	req, err := http.NewRequest(http.MethodDelete, server.URL+"/"+created.ID, nil)

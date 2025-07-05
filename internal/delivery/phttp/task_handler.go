@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gaz358/myprog/workmate/domen"
+	"github.com/gaz358/myprog/workmate/domain"
 	"github.com/gaz358/myprog/workmate/pkg/logger"
 	"github.com/gaz358/myprog/workmate/usecase"
 	"github.com/go-chi/chi/v5"
@@ -16,7 +16,7 @@ type ErrorResponse struct {
 	Message string `json:"message" example:"something went wrong"`
 }
 
-var _ = domen.Task{}
+var _ = domain.Task{}
 
 type Handler struct {
 	uc  *usecase.TaskUseCase
@@ -48,7 +48,7 @@ func (h *Handler) Routes() http.Handler {
 // @Description  Инициализирует задачу со статусом Pending и возвращает её с сгенерированным ID
 // @Tags         tasks
 // @Produce      json
-// @Success      200  {object}  domen.Task         "Задача успешно создана"
+// @Success      200  {object}  domain.Task         "Задача успешно создана"
 // @Failure      500  {object}  ErrorResponse  "Внутренняя ошибка сервера"
 // @Router       /tasks [post]
 func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
@@ -71,7 +71,7 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 // @Tags         tasks
 // @Produce      json
 // @Param        id   path      string            true  "ID задачи"
-// @Success      200  {object}  domen.Task        "Задача найдена"
+// @Success      200  {object}  domain.Task        "Задача найдена"
 // @Failure      404  {object}  phttp.ErrorResponse  "Задача не найдена"
 // @Failure      500  {object}  phttp.ErrorResponse  "Внутренняя ошибка сервера"
 // @Router       /tasks/{id} [get]
@@ -81,10 +81,10 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 
 	task, err := h.uc.GetTask(id)
 	if err != nil {
-		if errors.Is(err, domen.ErrNotFound) {
-			h.log.Warnw("task not found", "id", id)
+		if errors.Is(err, domain.ErrNotFound) {
+			h.log.Warnw("not found", "id", id)
 			w.WriteHeader(http.StatusNotFound)
-			writeJSON(w, ErrorResponse{Message: "task not found"})
+			writeJSON(w, ErrorResponse{Message: "not found"})
 			return
 		}
 
@@ -112,10 +112,10 @@ func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
 
 	err := h.uc.DeleteTask(id)
 	if err != nil {
-		if errors.Is(err, domen.ErrNotFound) {
-			h.log.Warnw("task not found", "id", id)
+		if errors.Is(err, domain.ErrNotFound) {
+			h.log.Warnw("not found", "id", id)
 			w.WriteHeader(http.StatusNotFound)
-			writeJSON(w, ErrorResponse{Message: "task not found"})
+			writeJSON(w, ErrorResponse{Message: "not found"})
 			return
 		}
 
@@ -137,7 +137,7 @@ func writeJSON(w http.ResponseWriter, v interface{}) {
 // @Summary      Получить список всех задач
 // @Tags         tasks
 // @Produce      json
-// @Success      200  {array}  domen.TaskListItem
+// @Success      200  {array}  domain.TaskListItem
 // @Failure      500  {object}  ErrorResponse
 // @Router       /tasks/all [get]
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +155,7 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 			"id":     t.ID,
 			"status": t.Status,
 		}
-		if t.Status == domen.StatusCompleted {
+		if t.Status == domain.StatusCompleted {
 			item["duration"] = t.EndedAt.Sub(t.StartedAt).String()
 		}
 		result = append(result, item)
@@ -178,10 +178,10 @@ func (h *Handler) cancel(w http.ResponseWriter, r *http.Request) {
 
 	err := h.uc.CancelTask(id)
 	if err != nil {
-		if errors.Is(err, domen.ErrNotFound) {
-			h.log.Warnw("task not found", "id", id)
+		if errors.Is(err, domain.ErrNotFound) {
+			h.log.Warnw("not found", "id", id)
 			w.WriteHeader(http.StatusNotFound)
-			writeJSON(w, ErrorResponse{Message: "task not found"})
+			writeJSON(w, ErrorResponse{Message: "not found"})
 			return
 		}
 		h.log.Errorw("failed to cancel task", "id", id, "error", err)
