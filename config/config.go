@@ -1,11 +1,11 @@
 package config
 
 import (
-	"log"
 	"os"
 	"strconv"
 	"time"
 
+	"github.com/gaz358/myprog/workmate/pkg/logger"
 	"github.com/joho/godotenv"
 )
 
@@ -22,42 +22,53 @@ type Config struct {
 }
 
 func Load() *Config {
+	log := logger.Global().Named("config")
+	log.Info("loading config...")
+
 	if err := godotenv.Load(); err != nil {
-		log.Println("[config] .env не найден, используются переменные окружения по умолчанию")
+		log.Warn("[config] .env не найден, используются переменные окружения по умолчанию")
+	} else {
+		log.Info("[config] .env успешно загружен")
 	}
 
 	cfg := &Config{
-		Port:            getEnv("PORT", "8080"),
-		LogLevel:        getEnv("LOG_LEVEL", "info"),
-		TaskDuration:    getEnvAsDuration("TASK_DURATION", defaultTaskDuration),
-		ShutdownTimeout: getEnvAsDuration("SHUTDOWN_TIMEOUT", defaultShutdownTimeout),
+		Port:            getEnv(log, "PORT", "8080"),
+		LogLevel:        getEnv(log, "LOG_LEVEL", "info"),
+		TaskDuration:    getEnvAsDuration(log, "TASK_DURATION", defaultTaskDuration),
+		ShutdownTimeout: getEnvAsDuration(log, "SHUTDOWN_TIMEOUT", defaultShutdownTimeout),
 	}
 
-	log.Printf("[config] PORT=%s", cfg.Port)
-	log.Printf("[config] LOG_LEVEL=%s", cfg.LogLevel)
-	log.Printf("[config] TASK_DURATION=%s", cfg.TaskDuration)
-	log.Printf("[config] SHUTDOWN_TIMEOUT=%s", cfg.ShutdownTimeout)
+	log.Infow("[config] итоговая конфигурация",
+		"PORT", cfg.Port,
+		"LOG_LEVEL", cfg.LogLevel,
+		"TASK_DURATION", cfg.TaskDuration,
+		"SHUTDOWN_TIMEOUT", cfg.ShutdownTimeout,
+	)
 
 	return cfg
 }
 
-func getEnv(key string, def string) string {
+func getEnv(log logger.TypeOfLogger, key string, def string) string {
 	val := os.Getenv(key)
 	if val == "" {
+		log.Infow("[config] переменная не установлена, используется по умолчанию", "key", key, "default", def)
 		return def
 	}
+	log.Debugw("[config] переменная окружения", "key", key, "value", val)
 	return val
 }
 
-func getEnvAsDuration(key string, def time.Duration) time.Duration {
+func getEnvAsDuration(log logger.TypeOfLogger, key string, def time.Duration) time.Duration {
 	val := os.Getenv(key)
 	if val == "" {
+		log.Infow("[config] переменная не установлена, используется значение по умолчанию", "key", key, "default", def)
 		return def
 	}
 	i, err := strconv.Atoi(val)
 	if err != nil {
-		log.Printf("[config] неверное значение %s=%q: %v, используется по умолчанию: %v", key, val, err, def)
+		log.Warnw("[config] неверное значение, используется по умолчанию", "key", key, "value", val, "err", err, "default", def)
 		return def
 	}
+	log.Debugw("[config] переменная окружения (duration)", "key", key, "seconds", i)
 	return time.Duration(i) * time.Second
 }
