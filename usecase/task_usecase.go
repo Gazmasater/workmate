@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gaz358/myprog/workmate/domain"
+	"github.com/gaz358/myprog/workmate/pkg/logger" // Импорт логгера
 	"github.com/google/uuid"
 )
 
@@ -25,14 +26,17 @@ func NewTaskUseCase(repo domain.TaskRepository, duration time.Duration) *TaskUse
 }
 
 func (uc *TaskUseCase) CreateTask() (*domain.Task, error) {
-	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
-
+	ctx := context.Background()
 	task := &domain.Task{
 		ID:        uuid.NewString(),
 		CreatedAt: time.Now(),
 		Status:    domain.StatusPending,
 	}
+
+	logger.InfoKV(ctx, "creating task", "task_id", task.ID)
+
 	if err := uc.repo.Create(ctx, task); err != nil {
+		logger.ErrorKV(ctx, "failed to create task", "task_id", task.ID, "err", err)
 		return nil, err
 	}
 
@@ -41,16 +45,20 @@ func (uc *TaskUseCase) CreateTask() (*domain.Task, error) {
 	uc.cancelMap[task.ID] = cancel
 	uc.mu.Unlock()
 
-	// Делаем копию задачи и передаём по указателю (чтобы не было race)
 	copy := *task
 	go uc.run(ctx, &copy)
+
+	logger.InfoKV(ctx, "task created", "task_id", task.ID)
 	return task, nil
 }
 
 func (uc *TaskUseCase) run(ctx context.Context, task *domain.Task) {
+	logger.InfoKV(ctx, "running task", "task_id", task.ID)
 	task.Status = domain.StatusRunning
 	task.StartedAt = time.Now()
-	_ = uc.repo.Update(ctx, task)
+	if err := uc.repo.Update(ctx, task); err != nil {
+		logger.ErrorKV(ctx, "failed to update task status to running", "task_id", task.ID, "err", err)
+	}
 
 	select {
 	case <-ctx.Done():
@@ -58,52 +66,74 @@ func (uc *TaskUseCase) run(ctx context.Context, task *domain.Task) {
 		task.Result = "Canceled"
 		task.EndedAt = time.Now()
 		task.Duration = task.EndedAt.Sub(task.StartedAt).String()
-		_ = uc.repo.Update(ctx, task)
+		if err := uc.repo.Update(ctx, task); err != nil {
+			logger.ErrorKV(ctx, "failed to update canceled task", "task_id", task.ID, "err", err)
+		}
+		logger.InfoKV(ctx, "task canceled", "task_id", task.ID)
 	case <-time.After(uc.duration):
 		task.Status = domain.StatusCompleted
 		task.EndedAt = time.Now()
 		task.Duration = task.EndedAt.Sub(task.StartedAt).String()
 		task.Result = "OK"
-		_ = uc.repo.Update(ctx, task)
+		if err := uc.repo.Update(ctx, task); err != nil {
+			logger.ErrorKV(ctx, "failed to update completed task", "task_id", task.ID, "err", err)
+		}
+		logger.InfoKV(ctx, "task completed", "task_id", task.ID)
 	}
 
-	// Чистим cancelMap
 	uc.mu.Lock()
 	delete(uc.cancelMap, task.ID)
 	uc.mu.Unlock()
+	logger.DebugKV(ctx, "removed task from cancelMap", "task_id", task.ID)
 }
 
 func (uc *TaskUseCase) GetTask(id string) (*domain.Task, error) {
-	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
-
-	return uc.repo.Get(ctx, id)
+	ctx := context.Background()
+	logger.DebugKV(ctx, "get task", "task_id", id)
+	task, err := uc.repo.Get(ctx, id)
+	if err != nil {
+		logger.ErrorKV(ctx, "failed to get task", "task_id", id, "err", err)
+	}
+	return task, err
 }
 
 func (uc *TaskUseCase) DeleteTask(id string) error {
-	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
-
+	ctx := context.Background()
+	logger.InfoKV(ctx, "delete task", "task_id", id)
 	uc.mu.Lock()
 	if cancel, ok := uc.cancelMap[id]; ok {
-		cancel() // отменим если есть
+		cancel()
 		delete(uc.cancelMap, id)
+		logger.InfoKV(ctx, "task canceled via delete", "task_id", id)
 	}
 	uc.mu.Unlock()
-	return uc.repo.Delete(ctx, id)
+	err := uc.repo.Delete(ctx, id)
+	if err != nil {
+		logger.ErrorKV(ctx, "failed to delete task", "task_id", id, "err", err)
+	}
+	return err
 }
 
 func (uc *TaskUseCase) ListTasks() ([]*domain.Task, error) {
-	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
-
-	return uc.repo.List(ctx)
+	ctx := context.Background()
+	logger.Debug(ctx, "list tasks")
+	tasks, err := uc.repo.List(ctx)
+	if err != nil {
+		logger.ErrorKV(ctx, "failed to list tasks", "err", err)
+	}
+	return tasks, err
 }
 
 func (uc *TaskUseCase) CancelTask(id string) error {
+	ctx := context.Background()
 	uc.mu.Lock()
 	cancel, ok := uc.cancelMap[id]
 	uc.mu.Unlock()
 	if !ok {
+		logger.WarnKV(ctx, "cancel called but task not found in cancelMap", "task_id", id)
 		return domain.ErrNotFound
 	}
+	logger.InfoKV(ctx, "cancel task", "task_id", id)
 	cancel()
 	return nil
 }
