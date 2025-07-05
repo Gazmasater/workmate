@@ -3,9 +3,9 @@ package phttp
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gaz358/myprog/workmate/domain"
 	"github.com/gaz358/myprog/workmate/pkg/logger"
@@ -224,14 +224,21 @@ func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) filter(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	status := r.URL.Query().Get("status")
+
+	// Дефолтные значения
 	limit := 10
 	offset := 0
 
+	// Разбор параметров с обработкой ошибок
 	if l := r.URL.Query().Get("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		if v, err := strconv.Atoi(l); err == nil && v > 0 {
+			limit = v
+		}
 	}
 	if o := r.URL.Query().Get("offset"); o != "" {
-		fmt.Sscanf(o, "%d", &offset)
+		if v, err := strconv.Atoi(o); err == nil && v >= 0 {
+			offset = v
+		}
 	}
 
 	tasks, err := h.uc.ListTasks()
@@ -255,15 +262,15 @@ func (h *Handler) filter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Пагинация
-	end := offset + limit
 	if offset > len(filtered) {
 		offset = len(filtered)
 	}
+	end := offset + limit
 	if end > len(filtered) {
 		end = len(filtered)
 	}
-	result := filtered[offset:end]
+	paged := filtered[offset:end]
 
-	// Возврат
-	writeJSON(w, result)
+	// Можно преобразовать к TaskListItem, если требуется
+	writeJSON(w, paged)
 }
