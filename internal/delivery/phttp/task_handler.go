@@ -3,6 +3,7 @@ package phttp
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -40,6 +41,7 @@ func (h *Handler) Routes() http.Handler {
 	r.Delete("/{id}", h.delete)
 	r.Put("/{id}/cancel", h.cancel)
 	r.Get("/health", h.Health) // health на корне API
+	r.Get("/filter", h.filter)
 
 	return r
 }
@@ -205,4 +207,63 @@ func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write([]byte("ok")); err != nil {
 		log.Printf("error writing response: %v", err)
 	}
+}
+
+// filter godoc
+// @Summary      Фильтр и пагинация задач
+// @Description  Фильтрует задачи по id, status, возвращает пагинацию
+// @Tags         tasks
+// @Produce      json
+// @Param        id     query     string  false  "ID задачи (точное совпадение)"
+// @Param        status query     string  false  "Статус задачи (pending/completed/failed/...)"
+// @Param        limit  query     int     false  "Максимум задач в ответе (default=10)"
+// @Param        offset query     int     false  "Сдвиг (default=0)"
+// @Success      200    {array}   domain.TaskListItem
+// @Failure      500    {object}  ErrorResponse
+// @Router       /tasks/filter [get]
+func (h *Handler) filter(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	status := r.URL.Query().Get("status")
+	limit := 10
+	offset := 0
+
+	if l := r.URL.Query().Get("limit"); l != "" {
+		fmt.Sscanf(l, "%d", &limit)
+	}
+	if o := r.URL.Query().Get("offset"); o != "" {
+		fmt.Sscanf(o, "%d", &offset)
+	}
+
+	tasks, err := h.uc.ListTasks()
+	if err != nil {
+		h.log.Errorw("failed to list tasks", "error", err)
+		writeJSON(w, ErrorResponse{Message: err.Error()})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Фильтрация
+	filtered := make([]*domain.Task, 0)
+	for _, t := range tasks {
+		if id != "" && t.ID != id {
+			continue
+		}
+		if status != "" && string(t.Status) != status {
+			continue
+		}
+		filtered = append(filtered, t)
+	}
+
+	// Пагинация
+	end := offset + limit
+	if offset > len(filtered) {
+		offset = len(filtered)
+	}
+	if end > len(filtered) {
+		end = len(filtered)
+	}
+	result := filtered[offset:end]
+
+	// Возврат
+	writeJSON(w, result)
 }

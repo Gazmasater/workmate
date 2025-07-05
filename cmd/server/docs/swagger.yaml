@@ -177,4 +177,40 @@ paths:
       summary: Получить список всех задач
       tags:
       - tasks
+  /tasks/filter:
+    get:
+      description: Фильтрует задачи по id, status, возвращает пагинацию
+      parameters:
+      - description: ID задачи (точное совпадение)
+        in: query
+        name: id
+        type: string
+      - description: Статус задачи (pending/completed/failed/...)
+        in: query
+        name: status
+        type: string
+      - description: Максимум задач в ответе (default=10)
+        in: query
+        name: limit
+        type: integer
+      - description: Сдвиг (default=0)
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.TaskListItem'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/phttp.ErrorResponse'
+      summary: Фильтр и пагинация задач
+      tags:
+      - tasks
 swagger: "2.0"

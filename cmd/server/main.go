@@ -14,6 +14,8 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/gaz358/myprog/workmate/internal/delivery/health"
+
 	"github.com/gaz358/myprog/workmate/config"
 	"github.com/gaz358/myprog/workmate/internal/delivery/phttp"
 	"github.com/gaz358/myprog/workmate/pkg/logger"
@@ -45,6 +47,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Mount("/tasks", handler.Routes())
 	r.Get("/swagger/*", httpSwagger.WrapHandler)
+	r.Get("/health", health.Handler)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,

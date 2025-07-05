@@ -83,6 +83,61 @@
                 }
             }
         },
+        "/tasks/filter": {
+            "get": {
+                "description": "Фильтрует задачи по id, status, возвращает пагинацию",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Фильтр и пагинация задач",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID задачи (точное совпадение)",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Статус задачи (pending/completed/failed/...)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Максимум задач в ответе (default=10)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Сдвиг (default=0)",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.TaskListItem"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/phttp.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/tasks/{id}": {
             "get": {
                 "description": "Возвращает задачу по её идентификатору",

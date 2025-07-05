@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"context"
+	"sync"
 	"time"
 
 	"github.com/gaz358/myprog/workmate/domain"
@@ -8,14 +10,17 @@ import (
 )
 
 type TaskUseCase struct {
-	repo     domain.TaskRepository
-	duration time.Duration
+	repo      domain.TaskRepository
+	duration  time.Duration
+	cancelMap map[string]context.CancelFunc
+	mu        sync.Mutex
 }
 
 func NewTaskUseCase(repo domain.TaskRepository, duration time.Duration) *TaskUseCase {
 	return &TaskUseCase{
-		repo:     repo,
-		duration: duration,
+		repo:      repo,
+		duration:  duration,
+		cancelMap: make(map[string]context.CancelFunc),
 	}
 }
 
@@ -25,84 +30,70 @@ func (uc *TaskUseCase) CreateTask() (*domain.Task, error) {
 		CreatedAt: time.Now(),
 		Status:    domain.StatusPending,
 	}
-	err := uc.repo.Create(task)
-	if err != nil {
+	if err := uc.repo.Create(task); err != nil {
 		return nil, err
 	}
 
-	go uc.run(task.ID)
+	ctx, cancel := context.WithCancel(context.Background())
+	uc.mu.Lock()
+	uc.cancelMap[task.ID] = cancel
+	uc.mu.Unlock()
 
-	createdTask, err := uc.repo.Get(task.ID)
-	if err != nil {
-		return nil, err
-	}
-	return createdTask, nil
-}
-
-func (uc *TaskUseCase) run(id string) {
-	task, err := uc.repo.Get(id)
-	if err != nil {
-		return
-	}
-
-	task.Status = domain.StatusRunning
-	task.StartedAt = time.Now()
-	err = uc.repo.Update(task)
-	if err != nil {
-		return
-	}
-
-	time.Sleep(uc.duration)
-
-	task.Status = domain.StatusCompleted
-	task.EndedAt = time.Now()
-	task.Duration = task.EndedAt.Sub(task.StartedAt).String()
-	task.Result = "OK"
-	err = uc.repo.Update(task)
-	if err != nil {
-		return
-	}
-}
-
-func (uc *TaskUseCase) GetTask(id string) (*domain.Task, error) {
-	task, err := uc.repo.Get(id)
-	if err != nil {
-		return nil, err
-	}
+	go uc.run(ctx, task)
 	return task, nil
 }
 
-func (uc *TaskUseCase) DeleteTask(id string) error {
-	err := uc.repo.Delete(id)
-	if err != nil {
-		return err
+func (uc *TaskUseCase) run(ctx context.Context, task *domain.Task) {
+	task.Status = domain.StatusRunning
+	task.StartedAt = time.Now()
+	_ = uc.repo.Update(task)
+
+	select {
+	case <-ctx.Done():
+		task.Status = domain.StatusCancelled
+		task.Result = "Canceled"
+		task.EndedAt = time.Now()
+		task.Duration = task.EndedAt.Sub(task.StartedAt).String()
+		_ = uc.repo.Update(task)
+	case <-time.After(uc.duration):
+		task.Status = domain.StatusCompleted
+		task.EndedAt = time.Now()
+		task.Duration = task.EndedAt.Sub(task.StartedAt).String()
+		task.Result = "OK"
+		_ = uc.repo.Update(task)
 	}
-	return nil
+
+	// Чистим cancelMap
+	uc.mu.Lock()
+	delete(uc.cancelMap, task.ID)
+	uc.mu.Unlock()
+}
+
+func (uc *TaskUseCase) GetTask(id string) (*domain.Task, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *TaskUseCase) DeleteTask(id string) error {
+	uc.mu.Lock()
+	if cancel, ok := uc.cancelMap[id]; ok {
+		cancel() // отменим если есть
+		delete(uc.cancelMap, id)
+	}
+	uc.mu.Unlock()
+	return uc.repo.Delete(id)
 }
 
 func (uc *TaskUseCase) ListTasks() ([]*domain.Task, error) {
-	tasks, err := uc.repo.List()
-	if err != nil {
-		return nil, err
-	}
-	return tasks, nil
+	return uc.repo.List()
 }
 
 func (uc *TaskUseCase) CancelTask(id string) error {
-	task, err := uc.repo.Get(id)
-	if err != nil {
-		return err
+	uc.mu.Lock()
+	cancel, ok := uc.cancelMap[id]
+	uc.mu.Unlock()
+	if !ok {
+		return domain.ErrNotFound
 	}
-	if task.Status == domain.StatusCompleted ||
-		task.Status == domain.StatusFailed ||
-		task.Status == domain.StatusCancelled {
-		return nil
-	}
-	task.Status = domain.StatusCancelled
-	task.Result = "Canceled"
-	err = uc.repo.Update(task)
-	if err != nil {
-		return err
-	}
+	cancel()
 	return nil
 }
