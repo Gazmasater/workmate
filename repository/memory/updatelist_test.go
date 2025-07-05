@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -9,6 +10,9 @@ import (
 )
 
 func TestInMemoryRepo_Update(t *testing.T) {
+
+	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
+
 	repo := NewInMemoryRepo()
 
 	// Создание и добавление задачи
@@ -17,16 +21,16 @@ func TestInMemoryRepo_Update(t *testing.T) {
 		CreatedAt: time.Now(),
 		Status:    domain.StatusPending,
 	}
-	err := repo.Create(task)
+	err := repo.Create(ctx, task)
 	assert.NoError(t, err, "ошибка при создании задачи")
 
 	// Обновление задачи
 	task.Status = domain.StatusCompleted
 	task.Result = "done"
-	err = repo.Update(task)
+	err = repo.Update(ctx, task)
 	assert.NoError(t, err, "ошибка при обновлении задачи")
 
-	updated, err := repo.Get(task.ID)
+	updated, err := repo.Get(ctx, task.ID)
 	assert.NoError(t, err)
 	assert.Equal(t, domain.StatusCompleted, updated.Status)
 	assert.Equal(t, "done", updated.Result)
@@ -36,15 +40,17 @@ func TestInMemoryRepo_Update(t *testing.T) {
 		ID:     "nonexistent",
 		Status: domain.StatusFailed,
 	}
-	err = repo.Update(nonexistent)
+	err = repo.Update(ctx, nonexistent)
 	assert.ErrorIs(t, err, domain.ErrNotFound)
 }
 
 func TestInMemoryRepo_List(t *testing.T) {
+	ctx := context.Background()
+
 	repo := NewInMemoryRepo()
 
 	// Пустой список
-	tasks, err := repo.List()
+	tasks, err := repo.List(ctx)
 	assert.NoError(t, err)
 	assert.Empty(t, tasks, "список должен быть пуст при отсутствии задач")
 
@@ -52,10 +58,10 @@ func TestInMemoryRepo_List(t *testing.T) {
 	task1 := &domain.Task{ID: "id1", CreatedAt: time.Now(), Status: domain.StatusPending}
 	task2 := &domain.Task{ID: "id2", CreatedAt: time.Now(), Status: domain.StatusCompleted}
 
-	_ = repo.Create(task1)
-	_ = repo.Create(task2)
+	_ = repo.Create(ctx, task1)
+	_ = repo.Create(ctx, task2)
 
-	tasks, err = repo.List()
+	tasks, err = repo.List(ctx)
 	assert.NoError(t, err)
 	assert.Len(t, tasks, 2)
 

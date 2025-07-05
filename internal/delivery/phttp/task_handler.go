@@ -215,7 +215,7 @@ func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 // @Tags         tasks
 // @Produce      json
 // @Param        id     query     string  false  "ID задачи (точное совпадение)"
-// @Param        status query     string  false  "Статус задачи (pending/completed/failed/...)"
+// @Param        status query     string  false  "Статус задачи" Enums(pending, running, completed, failed, cancelled)
 // @Param        limit  query     int     false  "Максимум задач в ответе (default=10)"
 // @Param        offset query     int     false  "Сдвиг (default=0)"
 // @Success      200    {array}   domain.TaskListItem

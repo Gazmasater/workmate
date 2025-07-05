@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -9,6 +10,9 @@ import (
 )
 
 func TestInMemoryRepo_Delete(t *testing.T) {
+
+	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
+
 	repo := NewInMemoryRepo()
 
 	task := &domain.Task{
@@ -18,18 +22,18 @@ func TestInMemoryRepo_Delete(t *testing.T) {
 	}
 
 	// Создаем задачу
-	err := repo.Create(task)
+	err := repo.Create(ctx, task)
 	assert.NoError(t, err, "ошибка при создании задачи")
 
 	// Удаляем задачу
-	err = repo.Delete(task.ID)
+	err = repo.Delete(ctx, task.ID)
 	assert.NoError(t, err, "ошибка при удалении задачи")
 
 	// Проверяем, что задача действительно удалена
-	_, err = repo.Get(task.ID)
+	_, err = repo.Get(ctx, task.ID)
 	assert.ErrorIs(t, err, domain.ErrNotFound, "ожидалась ошибка ErrNotFound после удаления")
 
 	// Попытка удалить несуществующую задачу
-	err = repo.Delete("non-existent-id")
+	err = repo.Delete(ctx, "non-existent-id")
 	assert.ErrorIs(t, err, domain.ErrNotFound, "ожидалась ошибка ErrNotFound при удалении несуществующей задачи")
 }

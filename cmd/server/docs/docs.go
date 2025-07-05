@@ -107,8 +107,15 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "pending",
+                            "running",
+                            "completed",
+                            "failed",
+                            "cancelled"
+                        ],
                         "type": "string",
-                        "description": "Статус задачи (pending/completed/failed/...)",
+                        "description": "Статус задачи",
                         "name": "status",
                         "in": "query"
                     },

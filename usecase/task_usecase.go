@@ -25,12 +25,14 @@ func NewTaskUseCase(repo domain.TaskRepository, duration time.Duration) *TaskUse
 }
 
 func (uc *TaskUseCase) CreateTask() (*domain.Task, error) {
+	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
+
 	task := &domain.Task{
 		ID:        uuid.NewString(),
 		CreatedAt: time.Now(),
 		Status:    domain.StatusPending,
 	}
-	if err := uc.repo.Create(task); err != nil {
+	if err := uc.repo.Create(ctx, task); err != nil {
 		return nil, err
 	}
 
@@ -48,7 +50,7 @@ func (uc *TaskUseCase) CreateTask() (*domain.Task, error) {
 func (uc *TaskUseCase) run(ctx context.Context, task *domain.Task) {
 	task.Status = domain.StatusRunning
 	task.StartedAt = time.Now()
-	_ = uc.repo.Update(task)
+	_ = uc.repo.Update(ctx, task)
 
 	select {
 	case <-ctx.Done():
@@ -56,13 +58,13 @@ func (uc *TaskUseCase) run(ctx context.Context, task *domain.Task) {
 		task.Result = "Canceled"
 		task.EndedAt = time.Now()
 		task.Duration = task.EndedAt.Sub(task.StartedAt).String()
-		_ = uc.repo.Update(task)
+		_ = uc.repo.Update(ctx, task)
 	case <-time.After(uc.duration):
 		task.Status = domain.StatusCompleted
 		task.EndedAt = time.Now()
 		task.Duration = task.EndedAt.Sub(task.StartedAt).String()
 		task.Result = "OK"
-		_ = uc.repo.Update(task)
+		_ = uc.repo.Update(ctx, task)
 	}
 
 	// Чистим cancelMap
@@ -72,21 +74,27 @@ func (uc *TaskUseCase) run(ctx context.Context, task *domain.Task) {
 }
 
 func (uc *TaskUseCase) GetTask(id string) (*domain.Task, error) {
-	return uc.repo.Get(id)
+	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
+
+	return uc.repo.Get(ctx, id)
 }
 
 func (uc *TaskUseCase) DeleteTask(id string) error {
+	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
+
 	uc.mu.Lock()
 	if cancel, ok := uc.cancelMap[id]; ok {
 		cancel() // отменим если есть
 		delete(uc.cancelMap, id)
 	}
 	uc.mu.Unlock()
-	return uc.repo.Delete(id)
+	return uc.repo.Delete(ctx, id)
 }
 
 func (uc *TaskUseCase) ListTasks() ([]*domain.Task, error) {
-	return uc.repo.List()
+	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
+
+	return uc.repo.List(ctx)
 }
 
 func (uc *TaskUseCase) CancelTask(id string) error {

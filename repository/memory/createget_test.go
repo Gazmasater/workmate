@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -9,6 +10,8 @@ import (
 )
 
 func TestInMemoryRepo_CreateAndGet_ExactMatch(t *testing.T) {
+	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
+
 	repo := NewInMemoryRepo()
 
 	expectedTask := &domain.Task{
@@ -21,10 +24,10 @@ func TestInMemoryRepo_CreateAndGet_ExactMatch(t *testing.T) {
 		Result:    "OK",
 	}
 
-	err := repo.Create(expectedTask)
+	err := repo.Create(ctx, expectedTask)
 	assert.NoError(t, err, "ошибка при создании задачи")
 
-	got, err := repo.Get(expectedTask.ID)
+	got, err := repo.Get(ctx, expectedTask.ID)
 	assert.NoError(t, err, "ошибка при получении задачи")
 
 	assert.Equal(t, expectedTask.ID, got.ID)
@@ -37,7 +40,7 @@ func TestInMemoryRepo_CreateAndGet_ExactMatch(t *testing.T) {
 
 	// Проверка получения несуществующей задачи
 	nonExistentID := "task-nonexistent"
-	got, err = repo.Get(nonExistentID)
+	got, err = repo.Get(ctx, nonExistentID)
 	assert.Nil(t, got, "ожидается nil при получении несуществующей задачи")
 	assert.ErrorIs(t, err, domain.ErrNotFound, "ожидалась ошибка ErrNotFound")
 }

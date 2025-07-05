@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"testing"
@@ -9,6 +10,8 @@ import (
 )
 
 func TestInMemoryRepo_Concurrency(t *testing.T) {
+	ctx := context.Background() // Можно объявить в начале теста, если его ещё нет
+
 	repo := NewInMemoryRepo()
 	const n = 1000000
 	var wg sync.WaitGroup
@@ -22,7 +25,7 @@ func TestInMemoryRepo_Concurrency(t *testing.T) {
 				ID:     tid,
 				Status: domain.StatusPending,
 			}
-			if err := repo.Create(task); err != nil {
+			if err := repo.Create(ctx, task); err != nil {
 				t.Errorf("create err: %v", err)
 			}
 		}(i)
@@ -30,7 +33,7 @@ func TestInMemoryRepo_Concurrency(t *testing.T) {
 	wg.Wait()
 
 	// Проверяем, что все задачи создались
-	tasks, err := repo.List()
+	tasks, err := repo.List(ctx)
 	if err != nil {
 		t.Fatalf("List error: %v", err)
 	}
@@ -48,7 +51,7 @@ func TestInMemoryRepo_Concurrency(t *testing.T) {
 				ID:     tid,
 				Status: domain.StatusCompleted,
 			}
-			if err := repo.Update(task); err != nil {
+			if err := repo.Update(ctx, task); err != nil {
 				t.Errorf("update err: %v", err)
 			}
 		}(i)
@@ -61,7 +64,7 @@ func TestInMemoryRepo_Concurrency(t *testing.T) {
 		go func(id int) {
 			defer wg.Done()
 			tid := fmt.Sprintf("task-%d", id)
-			if err := repo.Delete(tid); err != nil {
+			if err := repo.Delete(ctx, tid); err != nil {
 				t.Errorf("delete err: %v", err)
 			}
 		}(i)
@@ -69,7 +72,7 @@ func TestInMemoryRepo_Concurrency(t *testing.T) {
 	wg.Wait()
 
 	// После удаления ничего не должно остаться
-	tasks, err = repo.List()
+	tasks, err = repo.List(ctx)
 	if err != nil {
 		t.Fatalf("List error: %v", err)
 	}

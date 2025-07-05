@@ -185,7 +185,13 @@ paths:
         in: query
         name: id
         type: string
-      - description: Статус задачи (pending/completed/failed/...)
+      - description: Статус задачи
+        enum:
+        - pending
+        - running
+        - completed
+        - failed
+        - cancelled
         in: query
         name: status
         type: string
