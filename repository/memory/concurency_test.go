@@ -10,7 +10,7 @@ import (
 
 func TestInMemoryRepo_Concurrency(t *testing.T) {
 	repo := NewInMemoryRepo()
-	const n = 100000
+	const n = 1000000
 	var wg sync.WaitGroup
 
 	for i := 0; i < n; i++ {

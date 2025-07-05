@@ -6,7 +6,6 @@
 package main
 
 import (
-	"log"
 	_ "net/http/pprof"
 
 	"context"
@@ -29,10 +28,10 @@ import (
 )
 
 func main() {
-	go func() {
-		log.Println("pprof listening on :6060")
-		log.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
+	//go func() {
+	//	log.Println("pprof listening on :6060")
+	//	log.Println(http.ListenAndServe("localhost:6060", nil))
+	//}()
 
 	cfg := config.Load()
 
