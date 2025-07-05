@@ -39,7 +39,9 @@ func (uc *TaskUseCase) CreateTask() (*domain.Task, error) {
 	uc.cancelMap[task.ID] = cancel
 	uc.mu.Unlock()
 
-	go uc.run(ctx, task)
+	// Делаем копию задачи и передаём по указателю (чтобы не было race)
+	copy := *task
+	go uc.run(ctx, &copy)
 	return task, nil
 }
 
