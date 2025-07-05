@@ -62,7 +62,7 @@ func TestTaskHandler_FullCycleWithCancel(t *testing.T) {
 	err = json.Unmarshal(body, &fetched)
 	assert.NoError(t, err)
 	assert.Equal(t, created.ID, fetched.ID)
-	assert.Equal(t, domain.StatusCancelled, fetched.Status)
+	assert.Equal(t, domain.StatusCanceled, fetched.Status)
 
 	// Delete task
 	req, err := http.NewRequest(http.MethodDelete, server.URL+"/"+created.ID, nil)

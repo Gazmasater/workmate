@@ -54,7 +54,7 @@ func (uc *TaskUseCase) run(ctx context.Context, task *domain.Task) {
 
 	select {
 	case <-ctx.Done():
-		task.Status = domain.StatusCancelled
+		task.Status = domain.StatusCanceled
 		task.Result = "Canceled"
 		task.EndedAt = time.Now()
 		task.Duration = task.EndedAt.Sub(task.StartedAt).String()

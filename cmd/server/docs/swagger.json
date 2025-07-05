@@ -106,7 +106,7 @@
                             "running",
                             "completed",
                             "failed",
-                            "cancelled"
+                            "canceled"
                         ],
                         "type": "string",
                         "description": "Статус задачи",
@@ -270,7 +270,7 @@
                 "StatusRunning",
                 "StatusCompleted",
                 "StatusFailed",
-                "StatusCancelled"
+                "StatusCanceled"
             ]
         },
         "domain.Task": {

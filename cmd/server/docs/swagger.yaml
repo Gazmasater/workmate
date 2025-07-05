@@ -13,7 +13,7 @@ definitions:
     - StatusRunning
     - StatusCompleted
     - StatusFailed
-    - StatusCancelled
+    - StatusCanceled
   domain.Task:
     properties:
       created_at:
@@ -191,7 +191,7 @@ paths:
         - running
         - completed
         - failed
-        - cancelled
+        - canceled
         in: query
         name: status
         type: string

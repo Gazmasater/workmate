@@ -112,7 +112,7 @@ const docTemplate = `{
                             "running",
                             "completed",
                             "failed",
-                            "cancelled"
+                            "canceled"
                         ],
                         "type": "string",
                         "description": "Статус задачи",
@@ -276,7 +276,7 @@ const docTemplate = `{
                 "StatusRunning",
                 "StatusCompleted",
                 "StatusFailed",
-                "StatusCancelled"
+                "StatusCanceled"
             ]
         },
         "domain.Task": {
