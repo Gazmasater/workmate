@@ -8,85 +8,10 @@ package main
 import (
 	//_ "net/http/pprof"
 
-	"context"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
-
-	"github.com/gaz358/myprog/workmate/internal/delivery/health"
-
-	"github.com/gaz358/myprog/workmate/config"
-	"github.com/gaz358/myprog/workmate/internal/delivery/phttp"
-	"github.com/gaz358/myprog/workmate/pkg/logger"
-	"github.com/gaz358/myprog/workmate/repository/memory"
-	"github.com/gaz358/myprog/workmate/usecase"
-
-	httpSwagger "github.com/swaggo/http-swagger"
-
 	_ "github.com/gaz358/myprog/workmate/cmd/server/docs"
-
-	"github.com/go-chi/chi/v5"
+	"github.com/gaz358/myprog/workmate/internal/app"
 )
 
 func main() {
-	//go func() {
-	//	log.Println("pprof listening on :6060")
-	//	log.Println(http.ListenAndServe("localhost:6060", nil))
-	//}()
-
-	cfg := config.Load()
-
-	logger.SetLevel(parseLogLevel(cfg.LogLevel))
-	logg := logger.Global().Named("main")
-
-	repo := memory.NewInMemoryRepo()
-	uc := usecase.NewTaskUseCase(repo, cfg.TaskDuration)
-	handler := phttp.NewHandler(uc)
-
-	r := chi.NewRouter()
-	r.Mount("/tasks", handler.Routes())
-	r.Get("/swagger/*", httpSwagger.WrapHandler)
-	r.Get("/health", health.Handler)
-
-	srv := &http.Server{
-		Addr:              ":" + cfg.Port,
-		Handler:           r,
-		ReadHeaderTimeout: 5 * time.Second,
-	}
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-
-	go func() {
-		logg.Infow("Starting HTTP server", "addr", srv.Addr)
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logg.Fatalw("ListenAndServe failed", "error", err)
-		}
-	}()
-
-	<-quit
-	logg.Infow("Shutting down server…")
-
-	ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		logg.Fatalw("Server forced to shutdown", "error", err)
-	}
-	logg.Infow("Server exited gracefully")
-}
-
-func parseLogLevel(level string) logger.LogLevel {
-	switch level {
-	case "debug":
-		return logger.DebugLevel
-	case "info":
-		return logger.InfoLevel
-	case "warn":
-		return logger.WarnLevel
-	case "error":
-		return logger.ErrorLevel
-	default:
-		return logger.InfoLevel
-	}
+	app.Run()
 }
