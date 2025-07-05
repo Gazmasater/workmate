@@ -15,7 +15,7 @@
 - REST API для задач (Task)
 - CRUD-операции:
 
-  - POST /HEALTH - проверка сервиса
+  - GET /HEALTH - проверка сервиса
   - POST /tasks — создать задачу
   - GET /tasks — получить список всех задач
   - GET /tasks/{id} — получить задачу по ID
