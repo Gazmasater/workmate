@@ -6,7 +6,7 @@
 package main
 
 import (
-	_ "net/http/pprof"
+	//_ "net/http/pprof"
 
 	"context"
 	"net/http"
