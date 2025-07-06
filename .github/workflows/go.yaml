@@ -2,9 +2,9 @@ name: Go Test & Lint
 
 on:
   push:
-    branches: [ main ]
+    branches: [ iter1 ]
   pull_request:
-    branches: [ main ]
+    branches: [ iter1 ]
 
 jobs:
   check:
