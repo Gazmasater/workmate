@@ -259,7 +259,6 @@ func (h *Handler) filter(w http.ResponseWriter, r *http.Request) {
 		filtered = append(filtered, t)
 	}
 
-	// Пагинация
 	if offset > len(filtered) {
 		offset = len(filtered)
 	}
