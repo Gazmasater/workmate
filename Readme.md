@@ -1,3 +1,7 @@
+[![Go Test & Lint](https://github.com/Gazmasater/workmate/actions/workflows/go.yaml/badge.svg)](https://github.com/Gazmasater/workmate/actions/workflows/go.yaml)
+
+
+
 ## Быстрый старт
 
 - git clone  https://github.com/Gazmasater/workmate/tree/iter1
