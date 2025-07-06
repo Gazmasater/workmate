@@ -9,7 +9,7 @@ import (
 	"github.com/gaz358/myprog/workmate/domain"
 )
 
-const shardCount = 16
+const shardCount = 32
 
 type shard struct {
 	mu    sync.RWMutex
