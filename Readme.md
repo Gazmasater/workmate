@@ -44,7 +44,7 @@ curl -X PUT http://localhost:8080/tasks/123e4567-e89b-12d3-a456-426614174000/can
   Для анализа производительности используются стандартные инструменты Go:  
   `go test -run TestInMemoryRepo_Concurrency -cpuprofile=cpu.out -memprofile=mem.out`
 - Для просмотра профилей:
-  ```sh
+  
   go tool pprof cpu.out
   go tool pprof mem.out
 Архитектурные решения
