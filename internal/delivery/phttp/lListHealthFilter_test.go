@@ -50,7 +50,6 @@ func TestTaskHandler_ListAndFilterAndHealth(t *testing.T) {
 	assert.Equal(t, 1, len(filtered))
 	assert.Equal(t, task1.ID, filtered[0]["id"])
 
-	// Health
 	healthResp, err := http.Get(server.URL + "/health")
 	assert.NoError(t, err)
 	defer healthResp.Body.Close()
