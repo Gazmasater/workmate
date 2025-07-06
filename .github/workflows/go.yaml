@@ -2,9 +2,9 @@ name: Go Test & Lint
 
 on:
   push:
-    branches: [ iter1 ]
+    branches: [ main ]
   pull_request:
-    branches: [ iter1 ]
+    branches: [ main ]
 
 jobs:
   check:
@@ -23,5 +23,10 @@ jobs:
         with:
           version: latest
 
-      - name: Run tests
-        run: go test ./... -race -v
+      - name: Run tests and generate coverage
+        run: go test -race -v -coverprofile=coverage.out ./...
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage.out
