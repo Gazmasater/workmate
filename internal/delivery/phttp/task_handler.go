@@ -36,7 +36,7 @@ func (h *Handler) Routes() http.Handler {
 	r := chi.NewRouter()
 	r.Post("/", h.create)
 	r.Get("/{id}", h.get)
-	r.Get("/all", h.list)
+	r.Get("/", h.list)
 
 	r.Delete("/{id}", h.delete)
 	r.Put("/{id}/cancel", h.cancel)
@@ -141,7 +141,7 @@ func writeJSON(w http.ResponseWriter, v interface{}) {
 // @Produce      json
 // @Success      200  {array}  domain.TaskListItem
 // @Failure      500  {object}  ErrorResponse
-// @Router       /tasks/all [get]
+// @Router       /tasks [get]
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 	tasks, err := h.uc.ListTasks()
 	if err != nil {

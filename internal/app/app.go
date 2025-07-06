@@ -63,7 +63,7 @@ func newServer(cfg *config.Config, handler http.Handler) *http.Server {
 	return &http.Server{
 		Addr:              ":" + cfg.Port,
 		Handler:           handler,
-		ReadHeaderTimeout: 5 * time.Second, // 👈 защита от Slowloris
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 }
 

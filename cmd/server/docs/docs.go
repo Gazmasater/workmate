@@ -36,32 +36,6 @@ const docTemplate = `{
             }
         },
         "/tasks": {
-            "post": {
-                "description": "Инициализирует задачу со статусом Pending и возвращает её с сгенерированным ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tasks"
-                ],
-                "summary": "Создать новую задачу",
-                "responses": {
-                    "200": {
-                        "description": "Задача успешно создана",
-                        "schema": {
-                            "$ref": "#/definitions/domain.Task"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/phttp.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/tasks/all": {
             "get": {
                 "produces": [
                     "application/json"
@@ -82,6 +56,30 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/phttp.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Инициализирует задачу со статусом Pending и возвращает её с сгенерированным ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Создать новую задачу",
+                "responses": {
+                    "200": {
+                        "description": "Задача успешно создана",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Task"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/phttp.ErrorResponse"
                         }
