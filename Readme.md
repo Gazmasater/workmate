@@ -1,5 +1,4 @@
-[![Go Test & Lint](https://github.com/Gazmasater/workmate/actions/workflows/go.yaml/badge.svg)](https://github.com/Gazmasater/workmate/actions/workflows/go.yaml)
-
+[![Go Test](https://github.com/Gazmasater/workmate/actions/workflows/go.yml/badge.svg?branch=iter1)](https://github.com/Gazmasater/workmate/actions/workflows/go.yml)
 
 
 ## Быстрый старт
