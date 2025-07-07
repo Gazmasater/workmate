@@ -3,7 +3,6 @@ SWAG_MAIN  = cmd/server/main.go
 
 .PHONY: swag-install docker-install swagger
 
-# Устанавливаем swag CLI, если его нет
 swag:swagger
 	@echo "Проверяем наличие swag..."
 	@if command -v swag >/dev/null 2>&1; then \
@@ -14,7 +13,6 @@ swag:swagger
 	  echo "Установили swag: $$(swag --version)"; \
 	fi
 
-# Цель для проверки/установки Docker
 docker-install:
 	@echo "Проверяем наличие Docker..."
 	@if command -v docker >/dev/null 2>&1; then \
@@ -33,7 +31,6 @@ docker-install:
 	  echo "Docker установлен: $$(docker --version)"; \
 	fi
 
-# Генерация Swagger локально, а затем установка Docker
 swagger: swag-install  
 	@echo "Генерируем Swagger локально..."
 	swag init -g $(SWAG_MAIN) -o $(SWAG_OUT)

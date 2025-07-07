@@ -8,10 +8,28 @@
 - Запуск сервера
   - cd cmd/server
   - go run .
+- Запуск make
+  - Установка (если нет) и генерация сваггер
+  - Установка Docker (если нет)
 - в браузере набрать для визуализации сваггера http://localhost:8080/swagger/index.html
 
+## Запуск проекта через Docker
 
-По умолчанию сервер слушает порт 8080.
+- Сборка контейнера
+  - docker build -t workmate:latest . 
+- Запуск контейнера
+  - docker run -d \
+  --name workmate_app \
+  -p 8080:8080 \
+  workmate:latest
+- Приложение будет доступно по адресу http://localhost:8080
+- SWAGGER UI
+  - Документация API доступна по адресу:
+    - http://localhost:8080/swagger/index.html
+-  Если контейнер уже был запущен ранее, его нужно остановить и удалить:
+    -  docker rm -f workmate_app || true
+      
+## По умолчанию сервер слушает порт 8080.
 
 ## Функционал
 
