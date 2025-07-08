@@ -18,12 +18,11 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 
-# <<< вот исправленный блок >>>
+
 RUN GOBIN=/usr/local/bin go install github.com/swaggo/swag/cmd/swag@latest
 RUN which swag && swag --version
 RUN swag init -g cmd/server/main.go -o cmd/server/docs && \
     sed -i '/LeftDelim:/d; /RightDelim:/d' cmd/server/docs/docs.go
-# <<< конец блока >>>
 
 WORKDIR /app
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o workmate cmd/server/main.go
